@@ -19,18 +19,18 @@ KEY2:		li a5, 1
 FIM:		ret				# retorna
 
 LOAD_ESQ:	li t3, 0
-		sh t3, 2(t1)			# carrega a dire��o em MARIO_STATUS (esq = 0)
+		sh t3, 2(t1)			# carrega a direï¿½ï¿½o em MARIO_STATUS (esq = 0)
 		ret
 
-LOAD_DIR:	li t3, 1			# carrega a dire��o em MARIO_STATUS (dir = 1)
+LOAD_DIR:	li t3, 1			# carrega a direï¿½ï¿½o em MARIO_STATUS (dir = 1)
 		sh t3, 2(t1)
 		ret
 		
-LOAD_CIMA:	li t3, 2			# carrega a dire��o em MARIO_STATUS (cima = 2)
+LOAD_CIMA:	li t3, 2			# carrega a direï¿½ï¿½o em MARIO_STATUS (cima = 2)
 		sh t3, 2(t1)
 		ret
 		
-LOAD_BAIXO:	li t3, 3			# carrega a dire��o em MARIO_STATUS (baixo = 3)
+LOAD_BAIXO:	li t3, 3			# carrega a direï¿½ï¿½o em MARIO_STATUS (baixo = 3)
 		sh t3, 2(t1)
 		ret
 
@@ -55,16 +55,16 @@ SKIP:		addi t1, t1, 1
 		sh t3, 0(t0)			# atualiza o valor de PRESSED para sair do loop
 		ret
 		
-MOVE:		la t0, MARIO_STATUS		# checa a condi��o de movimento e anda 4 pixels para a dire��o desejada
+MOVE:		la t0, MARIO_STATUS		# checa a condiï¿½ï¿½o de movimento e anda 4 pixels para a direï¿½ï¿½o desejada
 		la s2, MARIO_HITBOX1
 		la s3, MARIO_HITBOX2 
-		lh t0, 2(t0)			# carrega a dire��o do mario
-		beqz t0, CHAR_ESQ		# caso a dire��o seja 0, move para a esquerda
+		lh t0, 2(t0)			# carrega a direï¿½ï¿½o do mario
+		beqz t0, CHAR_ESQ		# caso a direï¿½ï¿½o seja 0, move para a esquerda
 		li t1, 1
-		beq t0, t1, CHAR_DIR		# caso a dire��o seja 1, move para a direita
+		beq t0, t1, CHAR_DIR		# caso a direï¿½ï¿½o seja 1, move para a direita
 		li t1, 2
-		beq t0, t1, CHAR_CIMA		# caso a dire��o seja 2, move para cima
-		j CHAR_BAIXO			# caso a dire��o seja 3, move para baixo
+		beq t0, t1, CHAR_CIMA		# caso a direï¿½ï¿½o seja 2, move para cima
+		j CHAR_BAIXO			# caso a direï¿½ï¿½o seja 3, move para baixo
 		
 		ret
 
