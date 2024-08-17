@@ -12,8 +12,8 @@ SCOREBOARD:	.string "SCORE"
 RECORDE:	.string "HIGH"	
 LIFESPACE:	.string "LIFE"
 LIFECOUNT:	.half 3
-		.include "macros.s"
-		.include "MACROSv21.s"
+		.include "Macros/macros.s"
+		.include "Macros/MACROSv21.s"
 .text
 
 MENU:		la a0, menu1
@@ -292,7 +292,7 @@ VICTORY:	##########
 	.include "Sprites_data/life.data"
 	.include "Sprites_data/life_2.data"
 	.include "Sprites_data/life_3.data"
-	.include "render.s"
-	.include "move.s"
-	.include "colision.s"
+	.include "In-game mechanics/render.s"
+	.include "In-game mechanics/move.s"
+	.include "In-game mechanics/colision.s"
 	.include "SYSTEMv21.s"
