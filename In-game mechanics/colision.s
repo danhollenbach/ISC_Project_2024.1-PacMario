@@ -16,7 +16,10 @@ COIN_COUNT:	li t0, 8		# dimensoes do tile do mapa de colisao para comparacao
 		beq t2, t0, PILL	# se o mario encostar em um poder, trata essa rotina
 		addi t2, t2, -255	# se houver moedas, agora transforma em um espaco sem moedas
 		sb t2, 0(a0)
-		addi s9, s9, 20		# soma 20 pontos ao contador de pontos
+		la a0, CURRENT
+		lh t0, 0(a0)
+		addi t0, t0, 20
+		sh t0, 0(a0)		# soma 20 pontos ao contador de pontos
 		la a0, POINTS		# carrega o n de pontos atual
 		lh t2, 0(a0)
 		addi t2, t2,1
