@@ -303,3 +303,7 @@ VICTORY:	##########
 	.include "Sprites_data/life.data"
 	.include "Sprites_data/life_2.data"
 	.include "Sprites_data/life_3.data"
+	.include "In-game mechanics/render.s"
+	.include "In-game mechanics/move.s"
+	.include "In-game mechanics/colision.s"
+	.include "Macros/SYSTEMv21.s"
