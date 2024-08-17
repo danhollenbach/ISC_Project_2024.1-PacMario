@@ -16,7 +16,12 @@ LIFECOUNT:	.half 3
 		.include "Macros/MACROSv21.s"
 .text
 
-MENU:		la a0, menu1
+MENU:	
+		la t0, D_BG_MUSIC
+		la t1, M_BG
+		sw t1, 0(t0)
+		jal a0, ST_MUS
+		la a0, menu1
 		li a1, 0
 		li a2, 0
 		li a5, 0
@@ -165,7 +170,7 @@ GAME_LOOP: 	la a0, POINTS
 		call KEY2
 		la a0, PRESSED
 		lh t0, 0(a0)
-		beqz t0, NORMAL_LOOP		# caso o cheat n foi pressionado, continua o loop
+		beqz t0, NORMAL_LOOP		# caso o cheat m foi pressionado, continua o loop
 		li t0, 0
 		sh t0, 0(a0)			# reseta o PRESSED
 		j SETUP				# vai para o inicio da configuracao
@@ -255,6 +260,7 @@ PRINT:		li a7, 0
 		li a7 32
 		li a0 50
 		ecall				# pausa por 50 ms
+		jal P_MUS
 		j GAME_LOOP
 
 NEXT_LEVEL:	la a0, STAGE
@@ -267,9 +273,14 @@ GAME_OVER:	##########
 
 VICTORY:	##########
 
-		
-.data
+	.include "In-game mechanics/render.s"
+	.include "In-game mechanics/move.s"
+	.include "In-game mechanics/colision.s"
+	.include "Sounds/musicPlayer.s"
+	.include "Macros/SYSTEMv21.s"	
 
+.data
+    .include "Sounds/music.data"
 	.include "Sprites_data/menu1.data"
 	.include "Sprites_data/black.data"
 	.include "Sprites_data/menu2.data"
@@ -292,7 +303,3 @@ VICTORY:	##########
 	.include "Sprites_data/life.data"
 	.include "Sprites_data/life_2.data"
 	.include "Sprites_data/life_3.data"
-	.include "In-game mechanics/render.s"
-	.include "In-game mechanics/move.s"
-	.include "In-game mechanics/colision.s"
-	.include "SYSTEMv21.s"
