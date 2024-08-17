@@ -273,14 +273,9 @@ GAME_OVER:	##########
 
 VICTORY:	##########
 
-	.include "In-game mechanics/render.s"
-	.include "In-game mechanics/move.s"
-	.include "In-game mechanics/colision.s"
-	.include "Sounds/musicPlayer.s"
-	.include "Macros/SYSTEMv21.s"	
 
 .data
-    .include "Sounds/music.data"
+    	.include "Sounds/music.data"
 	.include "Sprites_data/menu1.data"
 	.include "Sprites_data/black.data"
 	.include "Sprites_data/menu2.data"
@@ -306,4 +301,5 @@ VICTORY:	##########
 	.include "In-game mechanics/render.s"
 	.include "In-game mechanics/move.s"
 	.include "In-game mechanics/colision.s"
-	.include "Macros/SYSTEMv21.s"
+	.include "Sounds/musicPlayer.s"
+	.include "Macros/SYSTEMv21.s"	
