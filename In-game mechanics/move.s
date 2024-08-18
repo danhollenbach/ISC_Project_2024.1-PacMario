@@ -90,6 +90,7 @@ CHAR_ESQ:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		sh t5, 2(s3)			# carrega o y da segunda hitbox
 		sh t2,2(t1)			# salva a posicao atual do personagem em OLD_CHAR_POS
 		
+		# check colisao #
 		la a0,CHAR_POS
 		lh t1,0(t0)			# carrega o x atual do personagem
 		addi t1,t1,-4			# decrementa 4 pixeis
@@ -112,6 +113,7 @@ CHAR_DIR:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		sh t5, 2(s3)			# carrega o y da segunda hitbox
 		sh t2,2(t1)			# salva a posicao atual do personagem em OLD_CHAR_POS
 		
+		# check colisao #
 		la t0,CHAR_POS
 		lh t1,0(t0)			# carrega o x atual do personagem
 		addi t1,t1,4			# incrementa 4 pixeis
@@ -133,6 +135,7 @@ CHAR_CIMA:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		sh t5, 2(s3)			# carrega o y da segunda hitbox
 		sh t2,2(t1)			# salva a posicao atual do personagem em OLD_CHAR_POS
 		
+		# check colisao #
 		la t0,CHAR_POS
 		lh t1,2(t0)			# carrega o y atual do personagem
 		addi t1,t1,-4			# decrementa 4 pixeis
@@ -154,6 +157,7 @@ CHAR_BAIXO:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		sh t5, 2(s3)			# carrega o y da segunda hitbox
 		sh t2,2(t1)			# salva a posicao atual do personagem em OLD_CHAR_POS
 		
+		# check colisao #
 		la t0,CHAR_POS
 		lh t1,2(t0)			# carrega o y atual do personagem
 		addi t1,t1,4			# incrementa 4 pixeis
