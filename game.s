@@ -269,9 +269,52 @@ NEXT_LEVEL:	la a0, STAGE
 		sh t2, 0(a0)
 		j SETUP				# volta para o setup
 						
-GAME_OVER:	##########
+GAME_OVER:	la a0, win1
+		li a1, 0
+		li a2, 0
+		li a5, 0
+		render_map(a0, a1, a2, 320, 240, a5)
+		la a0, win2
+		li a5, 1
+		render_map(a0, a1, a2, 320, 240, a5)
+		mv a5, s8
+		# renderiza as 2 partes da derrota para o player
+		la a0, STAGE
+		li t0, 4
+		sh t0, 0(a0)			# guarda 4 (tela de game over) no STAGE
+		j END_LOOP			# prossegue para checar a tela de sair do jogo
+		
+		
+VICTORY:	la a0, win1
+		li a1, 0
+		li a2, 0
+		li a5, 0
+		render_map(a0, a1, a2, 320, 240, a5)
+		la a0, win2
+		li a5, 1
+		render_map(a0, a1, a2, 320, 240, a5)
+		mv s8, a5
+		# renderiza as 2 partes da vitoria para o player
+		
+END_LOOP:	xori s8, s8, 1			# inverte o frame
+		li t0,0xFF200604		# carrega em t0 o endereco de troca de frame
+		sw s8,0(t0)			# mostra o sprite pronto para o usuario
+		call KEY2
+		la t0, PRESSED
+		lh t1, 0(t0)			# checa se alguma tecla foi apertada para sair do loop do menu
+		bne t1, zero, EXIT	
+		li a7 32
+		beqz a5, TIMEUP2
+		li a0, 750
+		j WAIT2
+		
+TIMEUP2:	li a0, 1750
 
-VICTORY:	##########
+WAIT2:		ecall				# freeza a mensagem na tela (1 s tela do menu e 2s 'press m') 
+		j END_LOOP
+
+EXIT:		li a7, 10
+		ecall				# sai do jogo caso a tecla seja pressionada
 
 
 .data
