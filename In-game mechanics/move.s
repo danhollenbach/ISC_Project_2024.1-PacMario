@@ -38,7 +38,9 @@ LOAD_NEXT:	la t0, STAGE
 		lh t1, 0(t0)			# carrega qual o nivel atual
 		li t3, 3
 		beq t1, t3 ,BEGIN
-		beqz t1, SKIP
+		li t3, 2
+		blt t1, t3, SKIP		# carrega o cheat caso seja apertado dentro das fases
+		j FINISH
 		ret
 		
 BEGIN:		li t3, 0
@@ -54,6 +56,11 @@ SKIP:		addi t1, t1, 1
 		li t3, 1
 		sh t3, 0(t0)			# atualiza o valor de PRESSED para sair do loop
 		ret
+
+FINISH:		la t0, PRESSED
+		li t3, 1
+		sh t3, 0(t0)			# atualiza o valor de PRESSED para sair do loop
+		ret		
 		
 MOVE:		la t0, MARIO_STATUS		# checa a condiï¿½ï¿½o de movimento e anda 4 pixels para a direï¿½ï¿½o desejada
 		la s2, MARIO_HITBOX1
