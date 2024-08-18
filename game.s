@@ -263,7 +263,10 @@ PRINT:		li a7, 0
 		jal P_MUS
 		j GAME_LOOP
 
-NEXT_LEVEL:	la a0, STAGE
+NEXT_LEVEL:	la a0, POINTS
+		li t0, 0
+		sh t0, 0(a0)			# zera a quantia de pontos
+		la a0, STAGE
 		lh t2, 0(a0)
 		addi t2, t2, 1			# soma 1 ao nivel atual, logo, vai pra o proximo nivel
 		sh t2, 0(a0)
