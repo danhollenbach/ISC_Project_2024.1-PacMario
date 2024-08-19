@@ -157,7 +157,7 @@ STANDBY:	li t0,0xFF200604		# carrega em t0 o endereco de troca de frame
 		
 GAME_LOOP: 	la a0, POINTS
 		lh a0, 0(a0)			# carrega o número de pontos em a0
-		li t0, 246			# numero total de pontos por fase
+		li t0, 240			# numero total de pontos por fase
 		beq a0, t0, NEXT_LEVEL		# caso o player alcance o fim do mapa, muda de fase
 		la a0, CURRENT
 		lh a0, 0(a0)
