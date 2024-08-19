@@ -1,9 +1,3 @@
-###############################################
-#  Programa de exemplo para Syscall MIDI      #
-#  ISC Abr 2018				                  #
-#  Marcus Vinicius Lamar		              #
-###############################################
-
 .data
 # Numero de Notas a tocar
 NUM: .word 148
@@ -66,3 +60,6 @@ REINICIA:
 FIM:
     li a7, 10           # define o syscall Exit
     ecall               # exit
+
+    # musica feita com 2 partes tocando simutanemante, 
+    # porem para a implementacao reduzida para uma so.

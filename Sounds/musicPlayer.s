@@ -1,9 +1,3 @@
-###############################################
-#  Program for playing music		      #
-#  ISC Set 2021				      #
-#  Ruan Petrus Alves Leite		      #
-###############################################
-
 #This program is a non_stop implementation of a music player
 #Play the music of the adress in t4.
 #The default value is a back_ground music played in loop
