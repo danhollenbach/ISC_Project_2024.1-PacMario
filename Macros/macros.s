@@ -39,3 +39,29 @@ mv ra, s11
 .end_macro
 
 
+.macro colision(%levelcmap, %x1, %y1, %x2, %y2)
+mv a0, %levelcmap	# mapa de colisao (1 ou 2 )
+mv a1, %x1		# x da primeira hitbox
+mv a2, %y1		# y da primeira hitbox
+mv a3, %x2		# x da segunda hitbox
+mv a4, %y2		# y da segunda hitbox
+mv s11, ra
+call COLISION_CHECK
+mv ra, s11
+
+.end_macro
+
+.macro ghost_dir (%cima, %baixo, %direita, %esquerda, %direcao, %status)
+la a0, %cima		# sprite de cima
+la a1, %baixo		# sprite de baixo
+la a2, %direita		# sprite da direita
+la a3, %esquerda	# sprite da esquerda
+mv a4, %direcao		# direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo)
+mv a5, %status		# status (0 = fragil, 1 = normal)
+mv s11, ra
+call GHOST_DIR
+mv ra, s11
+
+.end_macro
+
+

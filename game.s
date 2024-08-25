@@ -1,13 +1,43 @@
 .data
 STAGE:		.half 3				# nivel (0 = mapa 1, 1 = mapa 2, 2 = victory, 3 = menu)
+
 CHAR_POS: 	.half 60, 112			# x, y
 OLD_CHAR_POS:	.half 60, 112			# x, y
-MARIO_STATUS:	.half 1, 3, 1			# numero do sprite (0 = parado, 1 = movendo), direï¿½ï¿½o (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo), invencivel (0 = poder, 1 = normal)
+MARIO_STATUS:	.half 1, 3, 1			# numero do sprite (0 = parado, 1 = movendo), direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo), invencivel (0 = poder, 1 = normal)
 MARIO_HITBOX1:  .half 0,0			# hitbox do mario
 MARIO_HITBOX2:  .half 0,0
+
 POINTS:		.half 0				# contagem de pontos para a passagem do mapa / condicao de vitoria
 CURRENT:	.half 0				# contador fisico da pontuacao que sera mostrado no bitmap display
+TIMER1:		.half 100			# contador do power do mario na primeira fase (5 s)
+TIMER2:		.half 80			# contador do power do mario na segunda fase (4 s)
 PRESSED:	.half 0				# endereco para verificar o cheat pressionado (0 = nao, 1 = sim)
+COL:		.half 0				# checa colisao (0 = n, 1 = ss)
+
+RED_POS:	.half 160,112			# x, y
+RED_OLD_POS:	.half 160,112			# x, y
+RED_STATUS:	.half 1, 3, 1			# numero do sprite (0 = parado, 1 = movendo), direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo), assustado (0 = fragil, 1 = normal)
+REDHITBOX1:	.half 0,0			# hitbox do vermelho
+REDHITBOX2:	.half 0,0
+
+PINK_POS:	.half 128,128			# x, y
+PINK_OLD_POS:	.half 128,128			# x, y
+PINK_STATUS:	.half 1, 1, 1			# numero do sprite (0 = parado, 1 = movendo), direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo), assustado (0 = fragil, 1 = normal)
+PINKHITBOX1:	.half 0,0			# hitbox do rosa
+PINKHITBOX2:	.half 0,0
+
+ORANGE_POS:	.half 136,112			# x, y
+ORANGE_OLD_POS:	.half 136,112			# x, y
+ORANGE_STATUS:	.half 1, 0, 1			# numero do sprite (0 = parado, 1 = movendo), direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo), assustado (0 = fragil, 1 = normal)
+ORANGEHITBOX1:	.half 0,0			# hitbox do laranja
+ORANGEHITBOX2:	.half 0,0
+
+BLUE_POS:	.half 128,96			# x, y
+BLUE_OLD_POS:	.half 128,96			# x, y
+BLUE_STATUS:	.half 1, 1, 1			# numero do sprite (0 = parado, 1 = movendo), direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo), assustado (0 = fragil, 1 = normal)
+BLUEHITBOX1:	.half 0,0			# hitbox do azul
+BLUEHITBOX2:	.half 0,0	
+
 SCOREBOARD:	.string "SCORE"	
 RECORDE:	.string "HIGH"	
 LIFESPACE:	.string "LIFE"
@@ -16,8 +46,7 @@ LIFECOUNT:	.half 3
 		.include "Macros/MACROSv21.s"
 .text
 
-MENU:	
-		la t0, D_BG_MUSIC
+MENU:		la t0, D_BG_MUSIC
 		la t1, M_BG
 		sw t1, 0(t0)
 		jal a0, ST_MUS
@@ -72,11 +101,13 @@ SETUP:		li s10, 0			# contador para a animacao do sprite
 		la a0, mapa_2			# carrega o endereco do mapa2 em a0
 		mv s2, a0
 		la s3, moedas_2			# carrega o endereco do mapa de moedas 2
+		la s4, mapa_2c
 		j PRINT_MAP
 		
 MAPA1:		la a0,mapa_1n			# carrega o endereco do mapa1 em a0
 		mv s2, a0
 		la s3, moedas_1n		# coloca o endereço do mapa de moedas 
+		la s4, mapa_1c 
 		
 PRINT_MAP:	li a1,0				# x = 0
 		li a2,0				# y = 0
@@ -183,10 +214,28 @@ NORMAL_LOOP:	la t0, STAGE
 		beqz t0, STAGE_1
 		la a0, moedas_2c		# carrega o 2 mapa de colisao das moedas
 		coin_check(a0, t1, t2)		# verifica colisao de moedas no segundo mapa
-		j STEP_2
+		j POWER2
 
 STAGE_1:	la a0, moedas_1c
 		coin_check(a0, t1, t2)		# verifica colisao de moedas no primeiro mapa
+		
+		la t1, TIMER1			# chama o contador do poder do mario na segunda fase
+		lh t1, 0(t1)
+		j POWER_DOWN
+		
+POWER2:		la t1, TIMER2
+		lh t1, 0(t1)			# chama o contador do poder do mario na segunda fase
+		
+		
+POWER_DOWN:	la a0, MARIO_STATUS
+		lh t0, 4(a0)			# carrega se o mario esta poderoso ou nao
+		bne t0, zero, STEP_2		# caso esteja normal, ignora essa rotina
+		addi s9, s9, 1			# adiciona um ao contador de tempo
+		bne s9, t1, STEP_2
+		li t1, 1
+		sh t1, 4(a0)			# zera o poder do mario
+		li s9, 0			# zera o contador
+		
 
 STEP_2:		call MOVE
 		la a0, STAGE
@@ -204,6 +253,7 @@ ERASE:		la t0, OLD_CHAR_POS		# carrega a posicao antiga do mario
 		li a6, 0			
 		li a7, 1			# operacao de apagamento
 		render(a0, a1, a2, 16, 16, a5, a6, a7)
+		##############			# fazer o apagamento dos fantasmas
 		li t0,0xFF200604		# carrega em t0 o endereco de troca de frame
 		sw s0,0(t0)			# mostra o sprite pronto para o usuario
 		la t0, CHAR_POS
@@ -253,6 +303,7 @@ CIMA_P:		la a0, mario_pup		# carrega o sprite do mario energizado pra cima
 
 PRINT:		li a7, 0
 		render(a0, a1, a2, 16, 16, a5, a6, a7)
+		#############			# renderizar os fantasmas
 		li t0,0xFF200604		# carrega em t0 o endereco de troca de frame
 		sw s0,0(t0)			# mostra o sprite pronto para o usuario
 		addi s10, s10, 1		# incrementa o contador da animacao
@@ -263,7 +314,10 @@ PRINT:		li a7, 0
 		jal P_MUS
 		j GAME_LOOP
 
-NEXT_LEVEL:	la a0, POINTS
+NEXT_LEVEL:	la a0, MARIO_STATUS
+		li t0, 1
+		sh t0, 4(a0)			# zera o contador de poder do mario
+		la a0, POINTS
 		li t0, 0
 		sh t0, 0(a0)			# zera a quantia de pontos
 		la a0, STAGE

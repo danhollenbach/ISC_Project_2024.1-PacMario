@@ -19,18 +19,18 @@ KEY2:		li a5, 1
 FIM:		ret				# retorna
 
 LOAD_ESQ:	li t3, 0
-		sh t3, 2(t1)			# carrega a direï¿½ï¿½o em MARIO_STATUS (esq = 0)
+		sh t3, 2(t1)			# carrega a dire��o em MARIO_STATUS (esq = 0)
 		ret
 
-LOAD_DIR:	li t3, 1			# carrega a direï¿½ï¿½o em MARIO_STATUS (dir = 1)
+LOAD_DIR:	li t3, 1			# carrega a dire��o em MARIO_STATUS (dir = 1)
 		sh t3, 2(t1)
 		ret
 		
-LOAD_CIMA:	li t3, 2			# carrega a direï¿½ï¿½o em MARIO_STATUS (cima = 2)
+LOAD_CIMA:	li t3, 2			# carrega a dire��o em MARIO_STATUS (cima = 2)
 		sh t3, 2(t1)
 		ret
 		
-LOAD_BAIXO:	li t3, 3			# carrega a direï¿½ï¿½o em MARIO_STATUS (baixo = 3)
+LOAD_BAIXO:	li t3, 3			# carrega a dire��o em MARIO_STATUS (baixo = 3)
 		sh t3, 2(t1)
 		ret
 
@@ -55,6 +55,12 @@ SKIP:		addi t1, t1, 1
 		la t0, PRESSED
 		li t3, 1
 		sh t3, 0(t0)			# atualiza o valor de PRESSED para sair do loop
+		la t0, POINTS
+		li t1, 0
+		sh t1, 0(t0)			# zera o contador de pontos para passagem de fase
+		la t0, MARIO_STATUS
+		li t1, 1
+		sh t1, 4(t0)			# zera o status de poder do mario
 		ret
 
 FINISH:		la t0, PRESSED
@@ -62,16 +68,16 @@ FINISH:		la t0, PRESSED
 		sh t3, 0(t0)			# atualiza o valor de PRESSED para sair do loop
 		ret		
 		
-MOVE:		la t0, MARIO_STATUS		# checa a condiï¿½ï¿½o de movimento e anda 4 pixels para a direï¿½ï¿½o desejada
+MOVE:		la t0, MARIO_STATUS		# checa a condi��o de movimento e anda 4 pixels para a dire��o desejada
 		la s2, MARIO_HITBOX1
 		la s3, MARIO_HITBOX2 
-		lh t0, 2(t0)			# carrega a direï¿½ï¿½o do mario
-		beqz t0, CHAR_ESQ		# caso a direï¿½ï¿½o seja 0, move para a esquerda
+		lh t0, 2(t0)			# carrega a dire��o do mario
+		beqz t0, CHAR_ESQ		# caso a dire��o seja 0, move para a esquerda
 		li t1, 1
-		beq t0, t1, CHAR_DIR		# caso a direï¿½ï¿½o seja 1, move para a direita
+		beq t0, t1, CHAR_DIR		# caso a dire��o seja 1, move para a direita
 		li t1, 2
-		beq t0, t1, CHAR_CIMA		# caso a direï¿½ï¿½o seja 2, move para cima
-		j CHAR_BAIXO			# caso a direï¿½ï¿½o seja 3, move para baixo
+		beq t0, t1, CHAR_CIMA		# caso a dire��o seja 2, move para cima
+		j CHAR_BAIXO			# caso a dire��o seja 3, move para baixo
 		
 		ret
 
@@ -84,13 +90,21 @@ CHAR_ESQ:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		sh t5, 0(s3)			# carrega o x da segunda hitbox
 		sh t2,0(t1)
 		lh t2,2(t0)
-		addi t4, t2, 4
-		addi t5, t4, 7
+		addi t4, t2, 5
+		addi t5, t4, 6
 		sh t4, 2(s2)			# carrega o y da primeira hitbox
 		sh t5, 2(s3)			# carrega o y da segunda hitbox
 		sh t2,2(t1)			# salva a posicao atual do personagem em OLD_CHAR_POS
 		
-		# check colisao #
+		lh t2, 0(s2)			# x hitbox 1
+		lh t3, 2(s2)			# y hitbox 1
+		lh t4, 0(s3)			# x hitbox 2
+		lh t5, 2(s3)			# y hitbox 2
+		colision(s4, t2, t3, t4, t5) 	# checa a colisao
+		la t2, COL
+		lh t3, 0(t2)
+		bne t3, zero, BREAK		# caso contra a parede, evita a atualizacao da posicao
+		
 		la a0,CHAR_POS
 		lh t1,0(t0)			# carrega o x atual do personagem
 		addi t1,t1,-4			# decrementa 4 pixeis
@@ -107,13 +121,21 @@ CHAR_DIR:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		sh t5, 0(s3)			# carrega o x da segunda hitbox
 		sh t2,0(t1)
 		lh t2,2(t0)
-		addi t4, t2, 4
-		addi t5, t4, 7
+		addi t4, t2, 5
+		addi t5, t4, 6
 		sh t4, 2(s2)			# carrega o y da primeira hitbox
 		sh t5, 2(s3)			# carrega o y da segunda hitbox
 		sh t2,2(t1)			# salva a posicao atual do personagem em OLD_CHAR_POS
 		
-		# check colisao #
+		lh t2, 0(s2)			# x hitbox 1
+		lh t3, 2(s2)			# y hitbox 1
+		lh t4, 0(s3)			# x hitbox 2
+		lh t5, 2(s3)			# y hitbox 2
+		colision(s4, t2, t3, t4, t5) 	# checa a colisao
+		la t2, COL
+		lh t3, 0(t2)
+		bne t3, zero, BREAK		# caso contra a parede, evita a atualizacao da posicao
+		
 		la t0,CHAR_POS
 		lh t1,0(t0)			# carrega o x atual do personagem
 		addi t1,t1,4			# incrementa 4 pixeis
@@ -135,7 +157,15 @@ CHAR_CIMA:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		sh t5, 2(s3)			# carrega o y da segunda hitbox
 		sh t2,2(t1)			# salva a posicao atual do personagem em OLD_CHAR_POS
 		
-		# check colisao #
+		lh t2, 0(s2)			# x hitbox 1
+		lh t3, 2(s2)			# y hitbox 1
+		lh t4, 0(s3)			# x hitbox 2
+		lh t5, 2(s3)			# y hitbox 2
+		colision(s4, t2, t3, t4, t5) 	# checa a colisao
+		la t2, COL
+		lh t3, 0(t2)
+		bne t3, zero, BREAK		# caso contra a parede, evita a atualizacao da posicao
+		
 		la t0,CHAR_POS
 		lh t1,2(t0)			# carrega o y atual do personagem
 		addi t1,t1,-4			# decrementa 4 pixeis
@@ -157,9 +187,21 @@ CHAR_BAIXO:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		sh t5, 2(s3)			# carrega o y da segunda hitbox
 		sh t2,2(t1)			# salva a posicao atual do personagem em OLD_CHAR_POS
 		
-		# check colisao #
+		lh t2, 0(s2)			# x hitbox 1
+		lh t3, 2(s2)			# y hitbox 1
+		lh t4, 0(s3)			# x hitbox 2
+		lh t5, 2(s3)			# y hitbox 2
+		colision(s4, t2, t3, t4, t5) 	# checa a colisao
+		la t2, COL
+		lh t3, 0(t2)
+		bne t3, zero, BREAK		# caso contra a parede, evita a atualizacao da posicao
+		
 		la t0,CHAR_POS
 		lh t1,2(t0)			# carrega o y atual do personagem
 		addi t1,t1,4			# incrementa 4 pixeis
 		sh t1,2(t0)			# salva
+		ret
+
+BREAK:		li t3, 0
+		sh t3, 0(t2)			# zera o contador de colisao
 		ret
