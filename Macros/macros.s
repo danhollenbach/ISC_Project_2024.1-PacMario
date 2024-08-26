@@ -57,7 +57,7 @@ la a1, %baixo		# sprite de baixo
 la a2, %direita		# sprite da direita
 la a3, %esquerda	# sprite da esquerda
 mv a4, %direcao		# direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo)
-mv a5, %status		# status (0 = fragil, 1 = normal)
+mv a5, %status		# status (0 = parado, 1 = mexendo)
 mv s11, ra
 call GHOST_DIR
 mv ra, s11
