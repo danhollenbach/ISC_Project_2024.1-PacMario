@@ -58,6 +58,33 @@ NORMAL_PRINT:	mv t3,zero			# zera t3 (contador de coluna)
 		addi t2,t2,1			# incrementa contador de linha
 		bgt a4,t2,PRINT_LINHA		# se altura > contador de linha, continue imprimindo
 		
-		ret				# retorna
+RET:		ret				# retorna
 		
+GHOST_DIR:	la t0, MARIO_STATUS
+		lh t0, 4(t0)			# carrega se o mario esta poderoso ou nao
+		beqz t0, FRIGHT
+		beqz a5, G_LEFT
+		li t0, 1
+		beq a5, t0, G_RIGHT
+		li t0, 2
+		beq a5, t0, G_UP
 		
+G_DOWN:		mv a0, a2			# carrega o sprite do fantasma para baixo
+		j RET
+
+G_LEFT:		mv a0, a4			# carrega o sprite do fantasma para a esquerda
+		j RET
+		
+G_RIGHT:	mv a0, a3			# carrega o sprite do fantasma para a direita
+		j RET
+		
+G_UP:		mv a0, a1			# carrega o sprite do fantasma para cima
+		j RET
+		
+FRIGHT:		li t1, 60
+		bge s9, t1, FINISHING		# caso o contador de poder esteja chegando ao fim, carrega os fantasmas voltando ao normal
+		mv a0, a6			# carrega o sprite do fantasma com medo
+		j RET
+		
+FINISHING:	la a0, end_f	
+		j RET

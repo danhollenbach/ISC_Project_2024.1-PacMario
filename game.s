@@ -241,19 +241,47 @@ STEP_2:		call MOVE
 		la a0, STAGE
 		lh a0, 0(a0)			# carrega qual mapa esta sendo renderizado
 		beqz a0, LEVEL_1
-		la a0, mapa_2			# carrega o mapa 2
+		la s2, mapa_2			# mapa 2
+		la s5, moedas_2c		# mapa de colisao de moedas 2
 		j ERASE
 
-LEVEL_1:	la a0, mapa_1n
+LEVEL_1:	la s2, mapa_1n			# mapa 1
+		la s5, moedas_1c		# mapa de colisao de moedas 2
 
 ERASE:		la t0, OLD_CHAR_POS		# carrega a posicao antiga do mario
+		mv a0, s2			# mapa de base para o apagamento
 		lh a1, 0(t0)			# x
 		lh a2, 2(t0)			# y
 		mv a5, s0			# carrega o frame
 		li a6, 0			
 		li a7, 1			# operacao de apagamento
 		render(a0, a1, a2, 16, 16, a5, a6, a7)
-		##############			# fazer o apagamento dos fantasmas
+		
+		# fazer o apagamento dos fantasmas
+		# RED
+		ghost_er(RED_OLD_POS)
+		mv a5, s0			# carrega o frame
+		mv a0, s2
+		render(a0, a1, a2, 16, 16, a5, a6, a7)
+		
+		# PINK
+		ghost_er(PINK_OLD_POS)
+		mv a5, s0			# carrega o frame
+		mv a0, s2
+		render(a0, a1, a2, 16, 16, a5, a6, a7)
+		
+		# BLUE
+		ghost_er(BLUE_OLD_POS)
+		mv a5, s0			# carrega o frame
+		mv a0, s2
+		render(a0, a1, a2, 16, 16, a5, a6, a7)
+		
+		# ORANGE
+		ghost_er(ORANGE_OLD_POS)
+		mv a5, s0			# carrega o frame
+		mv a0, s2
+		render(a0, a1, a2, 16, 16, a5, a6, a7)
+		
 		li t0,0xFF200604		# carrega em t0 o endereco de troca de frame
 		sw s0,0(t0)			# mostra o sprite pronto para o usuario
 		la t0, CHAR_POS
@@ -303,7 +331,52 @@ CIMA_P:		la a0, mario_pup		# carrega o sprite do mario energizado pra cima
 
 PRINT:		li a7, 0
 		render(a0, a1, a2, 16, 16, a5, a6, a7)
-		#############			# renderizar os fantasmas
+		mv s7, a6
+		
+		# renderizar os fantasmas
+		# RED
+		la t0, RED_STATUS
+		lh t0, 2(t0)			# carrega a direcao do fantasma
+		ghost_dir(red_up, red_down, red_right, red_left, t0, red_f)
+		la t0, RED_POS
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		mv a5, s0
+		mv a6, s7
+		render(a0, a1, a2, 16, 16, a5, a6, a7)
+		
+		# PINK
+		la t0, PINK_STATUS
+		lh t0, 2(t0)			# carrega a direcao do fantasma
+		ghost_dir(pink_up, pink_down, pink_right, pink_left, t0, pink_f)
+		la t0, PINK_POS
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		mv a5, s0
+		mv a6, s7
+		render(a0, a1, a2, 16, 16, a5, a6, a7)
+		# BLUE
+		la t0, BLUE_STATUS
+		lh t0, 2(t0)			# carrega a direcao do fantasma
+		ghost_dir(blue_up, blue_down, blue_right, blue_left, t0, blue_f)
+		la t0, BLUE_POS
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		mv a5, s0
+		mv a6, s7
+		render(a0, a1, a2, 16, 16, a5, a6, a7)
+		
+		# ORANGE
+		la t0, ORANGE_STATUS
+		lh t0, 2(t0)			# carrega a direcao do fantasma
+		ghost_dir(orange_up, orange_down, orange_right, orange_left, t0, orange_f)
+		la t0, ORANGE_POS
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		mv a5, s0
+		mv a6, s7
+		render(a0, a1, a2, 16, 16, a5, a6, a7)
+
 		li t0,0xFF200604		# carrega em t0 o endereco de troca de frame
 		sw s0,0(t0)			# mostra o sprite pronto para o usuario
 		addi s10, s10, 1		# incrementa o contador da animacao
@@ -395,6 +468,27 @@ EXIT:		li a7, 10
 	.include "Sprites_data/mario_pdown.data"
 	.include "Sprites_data/mario_pleft.data"
 	.include "Sprites_data/mario_pright.data"
+	.include "Sprites_data/red_up.data"
+	.include "Sprites_data/red_down.data"
+	.include "Sprites_data/red_right.data"
+	.include "Sprites_data/red_left.data"
+	.include "Sprites_data/red_f.data"		
+	.include "Sprites_data/blue_up.data"
+	.include "Sprites_data/blue_down.data"
+	.include "Sprites_data/blue_right.data"
+	.include "Sprites_data/blue_left.data"
+	.include "Sprites_data/blue_f.data"
+	.include "Sprites_data/pink_up.data"
+	.include "Sprites_data/pink_down.data"
+	.include "Sprites_data/pink_right.data"
+	.include "Sprites_data/pink_left.data"
+	.include "Sprites_data/pink_f.data"
+	.include "Sprites_data/orange_up.data"
+	.include "Sprites_data/orange_down.data"
+	.include "Sprites_data/orange_right.data"
+	.include "Sprites_data/orange_left.data"
+	.include "Sprites_data/orange_f.data"	
+	.include "Sprites_data/end_f.data"
 	.include "Sprites_data/life.data"
 	.include "Sprites_data/life_2.data"
 	.include "Sprites_data/life_3.data"

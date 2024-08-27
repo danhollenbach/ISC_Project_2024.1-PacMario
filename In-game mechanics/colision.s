@@ -57,3 +57,20 @@ SKIP_MOVE:	la t2, COL
 		sh t3, 0(t2)		# guarda info da colisao na label
 
 CLOSE:		ret			# retorna
+
+CMAP_CHECK:	li t1, 8
+		li t2, 40
+		div t3, a1, t1
+		addi t3, t3, 9			# pega a informacao do mapa de moedas da coordenada correspondente (x)
+		div t4, a2, t1
+		addi t4, t4, 1
+		mul t4, t4, t2			# pega a informacao do mapa de moedas da coordenada correspondente (y)
+		add t2, t4, t3			# t2 = x + y * 40 + 8
+		add t4, s5, t2			# endereco do mapa de colisao de moedas + posicao relativa do boneco
+		lb t2, 0(t4)
+		bne t2, zero, CRENDER
+		mv a0, s2			# carrega no endereco de erase o mapa normal, caso o fantasma passe por um espaco vazio
+		ret
+		
+CRENDER:	mv a0, s3			# carrega no endereco de erase o mapa de moedas, caso o fantasma passe por um espaco que ainda tem moedas
+		ret

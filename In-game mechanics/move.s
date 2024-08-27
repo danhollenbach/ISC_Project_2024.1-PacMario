@@ -69,8 +69,8 @@ FINISH:		la t0, PRESSED
 		ret		
 		
 MOVE:		la t0, MARIO_STATUS		# checa a condi��o de movimento e anda 4 pixels para a dire��o desejada
-		la s2, MARIO_HITBOX1
-		la s3, MARIO_HITBOX2 
+		la s5, MARIO_HITBOX1
+		la s6, MARIO_HITBOX2 
 		lh t0, 2(t0)			# carrega a dire��o do mario
 		beqz t0, CHAR_ESQ		# caso a dire��o seja 0, move para a esquerda
 		li t1, 1
@@ -86,20 +86,20 @@ CHAR_ESQ:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		lh t2,0(t0)
 		addi t4, t2, 3
 		mv t5, t4
-		sh t4, 0(s2)			# carrega o x da primeira hitbox
-		sh t5, 0(s3)			# carrega o x da segunda hitbox
+		sh t4, 0(s5)			# carrega o x da primeira hitbox
+		sh t5, 0(s6)			# carrega o x da segunda hitbox
 		sh t2,0(t1)
 		lh t2,2(t0)
 		addi t4, t2, 5
 		addi t5, t4, 6
-		sh t4, 2(s2)			# carrega o y da primeira hitbox
-		sh t5, 2(s3)			# carrega o y da segunda hitbox
+		sh t4, 2(s5)			# carrega o y da primeira hitbox
+		sh t5, 2(s6)			# carrega o y da segunda hitbox
 		sh t2,2(t1)			# salva a posicao atual do personagem em OLD_CHAR_POS
 		
-		lh t2, 0(s2)			# x hitbox 1
-		lh t3, 2(s2)			# y hitbox 1
-		lh t4, 0(s3)			# x hitbox 2
-		lh t5, 2(s3)			# y hitbox 2
+		lh t2, 0(s5)			# x hitbox 1
+		lh t3, 2(s5)			# y hitbox 1
+		lh t4, 0(s6)			# x hitbox 2
+		lh t5, 2(s6)			# y hitbox 2
 		colision(s4, t2, t3, t4, t5) 	# checa a colisao
 		la t2, COL
 		lh t3, 0(t2)
@@ -117,20 +117,20 @@ CHAR_DIR:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		lh t2,0(t0)
 		addi t4, t2, 12			
 		mv t5, t4			
-		sh t4, 0(s2)			# carrega o x da primeira hitbox
-		sh t5, 0(s3)			# carrega o x da segunda hitbox
+		sh t4, 0(s5)			# carrega o x da primeira hitbox
+		sh t5, 0(s6)			# carrega o x da segunda hitbox
 		sh t2,0(t1)
 		lh t2,2(t0)
 		addi t4, t2, 5
 		addi t5, t4, 6
-		sh t4, 2(s2)			# carrega o y da primeira hitbox
-		sh t5, 2(s3)			# carrega o y da segunda hitbox
+		sh t4, 2(s5)			# carrega o y da primeira hitbox
+		sh t5, 2(s6)			# carrega o y da segunda hitbox
 		sh t2,2(t1)			# salva a posicao atual do personagem em OLD_CHAR_POS
 		
-		lh t2, 0(s2)			# x hitbox 1
-		lh t3, 2(s2)			# y hitbox 1
-		lh t4, 0(s3)			# x hitbox 2
-		lh t5, 2(s3)			# y hitbox 2
+		lh t2, 0(s5)			# x hitbox 1
+		lh t3, 2(s5)			# y hitbox 1
+		lh t4, 0(s6)			# x hitbox 2
+		lh t5, 2(s6)			# y hitbox 2
 		colision(s4, t2, t3, t4, t5) 	# checa a colisao
 		la t2, COL
 		lh t3, 0(t2)
@@ -147,20 +147,20 @@ CHAR_CIMA:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		lh t2,0(t0)
 		addi t4, t2, 4			
 		addi t5, t4, 7			
-		sh t4, 0(s2)			# carrega o x da primeira hitbox
-		sh t5, 0(s3)			# carrega o x da segunda hitbox
+		sh t4, 0(s5)			# carrega o x da primeira hitbox
+		sh t5, 0(s6)			# carrega o x da segunda hitbox
 		sh t2,0(t1)
 		lh t2,2(t0)
 		addi t4, t2, 3
 		mv t5, t4
-		sh t4, 2(s2)			# carrega o y da primeira hitbox
-		sh t5, 2(s3)			# carrega o y da segunda hitbox
+		sh t4, 2(s5)			# carrega o y da primeira hitbox
+		sh t5, 2(s6)			# carrega o y da segunda hitbox
 		sh t2,2(t1)			# salva a posicao atual do personagem em OLD_CHAR_POS
 		
-		lh t2, 0(s2)			# x hitbox 1
-		lh t3, 2(s2)			# y hitbox 1
-		lh t4, 0(s3)			# x hitbox 2
-		lh t5, 2(s3)			# y hitbox 2
+		lh t2, 0(s5)			# x hitbox 1
+		lh t3, 2(s5)			# y hitbox 1
+		lh t4, 0(s6)			# x hitbox 2
+		lh t5, 2(s6)			# y hitbox 2
 		colision(s4, t2, t3, t4, t5) 	# checa a colisao
 		la t2, COL
 		lh t3, 0(t2)
@@ -177,20 +177,20 @@ CHAR_BAIXO:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		lh t2,0(t0)
 		addi t4, t2, 4			
 		addi t5, t4, 7			
-		sh t4, 0(s2)			# carrega o x da primeira hitbox
-		sh t5, 0(s3)			# carrega o x da segunda hitbox
+		sh t4, 0(s5)			# carrega o x da primeira hitbox
+		sh t5, 0(s6)			# carrega o x da segunda hitbox
 		sh t2,0(t1)
 		lh t2,2(t0)
 		addi t4, t2, 12
 		mv t5, t4
-		sh t4, 2(s2)			# carrega o y da primeira hitbox
-		sh t5, 2(s3)			# carrega o y da segunda hitbox
+		sh t4, 2(s5)			# carrega o y da primeira hitbox
+		sh t5, 2(s6)			# carrega o y da segunda hitbox
 		sh t2,2(t1)			# salva a posicao atual do personagem em OLD_CHAR_POS
 		
-		lh t2, 0(s2)			# x hitbox 1
-		lh t3, 2(s2)			# y hitbox 1
-		lh t4, 0(s3)			# x hitbox 2
-		lh t5, 2(s3)			# y hitbox 2
+		lh t2, 0(s5)			# x hitbox 1
+		lh t3, 2(s5)			# y hitbox 1
+		lh t4, 0(s6)			# x hitbox 2
+		lh t5, 2(s6)			# y hitbox 2
 		colision(s4, t2, t3, t4, t5) 	# checa a colisao
 		la t2, COL
 		lh t3, 0(t2)
@@ -205,3 +205,4 @@ CHAR_BAIXO:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 BREAK:		li t3, 0
 		sh t3, 0(t2)			# zera o contador de colisao
 		ret
+		

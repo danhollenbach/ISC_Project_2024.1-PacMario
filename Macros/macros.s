@@ -7,9 +7,9 @@ li a4, %height		# Height of printing area (usually the size of the sprite) --- i
 mv a5, %frame		# Frame (0 or 1) --- register						
 mv a6, %status		# Status (parado / mexendo)
 mv a7, %op		# normal (0) ou apagar (1)
-mv s11,ra			# Stores ra to s11
+mv s11,ra		# Stores ra to s11
 call RENDER_P
-mv ra,s11			# Retrieves s11 to ra
+mv ra,s11		# Retrieves s11 to ra
 
 .end_macro
 
@@ -22,9 +22,9 @@ li a4, %height		# altura - int
 mv a5, %frame		# Frame (0 or 1) --- register
 li a6, 0		# tira o offset do mapa
 li a7, 1		# não faz a renderização do player
-mv s11,ra			# Stores ra to s11
+mv s11,ra		# Stores ra to s11
 call RENDER_P
-mv ra,s11			# Retrieves s11 to ra
+mv ra,s11		# Retrieves s11 to ra
 
 .end_macro
 
@@ -40,7 +40,7 @@ mv ra, s11
 
 
 .macro colision(%levelcmap, %x1, %y1, %x2, %y2)
-mv a0, %levelcmap	# mapa de colisao (1 ou 2 )
+mv a0, %levelcmap	# mapa de colisao (1 ou 2)
 mv a1, %x1		# x da primeira hitbox
 mv a2, %y1		# y da primeira hitbox
 mv a3, %x2		# x da segunda hitbox
@@ -51,17 +51,25 @@ mv ra, s11
 
 .end_macro
 
-.macro ghost_dir (%cima, %baixo, %direita, %esquerda, %direcao, %status)
-la a0, %cima		# sprite de cima
-la a1, %baixo		# sprite de baixo
-la a2, %direita		# sprite da direita
-la a3, %esquerda	# sprite da esquerda
-mv a4, %direcao		# direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo)
-mv a5, %status		# status (0 = parado, 1 = mexendo)
+.macro ghost_dir(%cima, %baixo, %direita, %esquerda, %direcao, %medo)
+la a1, %cima		# sprite de cima
+la a2, %baixo		# sprite de baixo
+la a3, %direita		# sprite da direita
+la a4, %esquerda	# sprite da esquerda
+mv a5, %direcao		# direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo)
+la a6, %medo		# carrega o sprite do fantasma com medo
 mv s11, ra
 call GHOST_DIR
 mv ra, s11
 
 .end_macro
 
+.macro ghost_er(%position)
+la t0, %position	# endereco da posicao do fantasma
+lh a1, 0(t0)		# x do fantasma
+lh a2, 2(t0)		# y do fantasma
+mv s11, ra
+call CMAP_CHECK
+mv ra, s11
 
+.end_macro
