@@ -1,11 +1,13 @@
 .data
-STAGE:		.half 3				# nivel (0 = mapa 1, 1 = mapa 2, 2 = victory, 3 = menu)
+STAGE:		.half 3				# nivel (0 = mapa 1, 1 = mapa 2, 2 = victory, 3 = menu, 4 = game over/victory)
 
 CHAR_POS: 	.half 60, 112			# x, y
 OLD_CHAR_POS:	.half 60, 112			# x, y
 MARIO_STATUS:	.half 1, 3, 1			# numero do sprite (0 = parado, 1 = movendo), direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo), invencivel (0 = poder, 1 = normal)
 MARIO_HITBOX1:  .half 0,0			# hitbox do mario
 MARIO_HITBOX2:  .half 0,0
+MARIO_CENTER:	.half 0,0			# centro do mario
+HIT_COUNT:	.half 0				# checa pra ver se o mario colidiu com algo 
 
 POINTS:		.half 0				# contagem de pontos para a passagem do mapa / condicao de vitoria
 CURRENT:	.half 0				# contador fisico da pontuacao que sera mostrado no bitmap display
@@ -14,29 +16,45 @@ TIMER2:		.half 80			# contador do power do mario na segunda fase (4 s)
 PRESSED:	.half 0				# endereco para verificar o cheat pressionado (0 = nao, 1 = sim)
 COL:		.half 0				# checa colisao (0 = n, 1 = ss)
 
+		.eqv P_REDX, 128
+		.eqv P_REDY, 128		# x e y do fantasma preso
 RED_POS:	.half 160,112			# x, y
 RED_OLD_POS:	.half 160,112			# x, y
 RED_STATUS:	.half 1, 3, 1			# numero do sprite (0 = parado, 1 = movendo), direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo), assustado (0 = fragil, 1 = normal)
-REDHITBOX1:	.half 0,0			# hitbox do vermelho
-REDHITBOX2:	.half 0,0
+RED_HITBOX1:	.half 0,0			# hitbox do vermelho
+RED_HITBOX2:	.half 0,0
+RED_TRAPED:	.half 0				# ve se o fantasma esta preso ou nao (1 = preso, 0 = nao)
+RED_TIMER:	.half 0				# conta o n de segundos que o fantasma esta preso
 
+		.eqv P_PINKX, 128
+		.eqv P_PINKY, 128		# x e y do fantasma preso
 PINK_POS:	.half 128,128			# x, y
 PINK_OLD_POS:	.half 128,128			# x, y
 PINK_STATUS:	.half 1, 1, 1			# numero do sprite (0 = parado, 1 = movendo), direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo), assustado (0 = fragil, 1 = normal)
-PINKHITBOX1:	.half 0,0			# hitbox do rosa
-PINKHITBOX2:	.half 0,0
+PINK_HITBOX1:	.half 0,0			# hitbox do rosa
+PINK_HITBOX2:	.half 0,0
+PINK_TRAPED:	.half 1				# ve se o fantasma esta preso ou nao (1 = preso, 0 = nao)
+PINK_TIMER:	.half -80			# conta o n de segundos que o fantasma esta preso (comeca com -60 para a diferenca no tempo de release)
 
+		.eqv P_ORANGEX, 136
+		.eqv P_ORANGEY, 112		# x e y do fantasma preso
 ORANGE_POS:	.half 136,112			# x, y
 ORANGE_OLD_POS:	.half 136,112			# x, y
 ORANGE_STATUS:	.half 1, 0, 1			# numero do sprite (0 = parado, 1 = movendo), direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo), assustado (0 = fragil, 1 = normal)
-ORANGEHITBOX1:	.half 0,0			# hitbox do laranja
-ORANGEHITBOX2:	.half 0,0
+ORANGE_HITBOX1:	.half 0,0			# hitbox do laranja
+ORANGE_HITBOX2:	.half 0,0
+ORANGE_TRAPED:	.half 1				# ve se o fantasma esta preso ou nao (1 = preso, 0 = nao)
+ORANGE_TIMER:	.half -40			# conta o n de segundos que o fantasma esta preso (comeca com -30 para a diferenca no tempo de release)
 
+		.eqv P_BLUEDX, 128
+		.eqv P_BLUEY, 196		# x e y do fantasma preso
 BLUE_POS:	.half 128,96			# x, y
 BLUE_OLD_POS:	.half 128,96			# x, y
 BLUE_STATUS:	.half 1, 1, 1			# numero do sprite (0 = parado, 1 = movendo), direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo), assustado (0 = fragil, 1 = normal)
-BLUEHITBOX1:	.half 0,0			# hitbox do azul
-BLUEHITBOX2:	.half 0,0	
+BLUE_HITBOX1:	.half 0,0			# hitbox do azul
+BLUE_HITBOX2:	.half 0,0
+BLUE_TRAPED:	.half 1				# ve se o fantasma esta preso ou nao (1 = preso, 0 = nao)
+BLUE_TIMER:	.half 0				# conta o n de segundos que o fantasma esta preso	
 
 SCOREBOARD:	.string "SCORE"	
 RECORDE:	.string "HIGH"	
@@ -82,6 +100,7 @@ PRESS_RES:	li t1, 0
 		sh t1, 0(t0)			# reseta o contador
 
 SETUP:		li s10, 0			# contador para a animacao do sprite
+		li s7, 0			# offset inicial para o sprite dos fantasmas 
 		la a0, black
 		li a1, 0
 		li a2, 0
@@ -181,6 +200,7 @@ ONE_L:		la a0, life
 		# imprime uma do player na aba do HUD		
 		
 STANDBY:	li t0,0xFF200604		# carrega em t0 o endereco de troca de frame
+		li a5, 0
 		sw a5,0(t0)			# mostra o sprite pronto para o usuario
 		li a7 32
 		li a0 2000
@@ -201,12 +221,17 @@ GAME_LOOP: 	la a0, POINTS
 		call KEY2
 		la a0, PRESSED
 		lh t0, 0(a0)
-		beqz t0, NORMAL_LOOP		# caso o cheat m foi pressionado, continua o loop
+		beqz t0, NORMAL_LOOP		# caso o cheat 'm' nao foi pressionado, continua o loop
 		li t0, 0
 		sh t0, 0(a0)			# reseta o PRESSED
 		j SETUP				# vai para o inicio da configuracao
 		
-NORMAL_LOOP:	la t0, STAGE
+NORMAL_LOOP:	############			# coloca os fantasmas presos ou nao
+		prison_check(RED_TRAPED, 128, 128, RED_TIMER, RED_POS)
+		prison_check(PINK_TRAPED, 128, 128, PINK_TIMER, PINK_POS)
+		prison_check(ORANGE_TRAPED, 136, 112, ORANGE_TIMER, ORANGE_POS)
+		prison_check(BLUE_TRAPED, 128, 96, BLUE_TIMER, BLUE_POS)
+		la t0, STAGE
 		lh t0, 0(t0)			# carrega qual o nivel atual
 		la t1, CHAR_POS
 		lh t2, 2(t1)			# y do mario
@@ -238,6 +263,7 @@ POWER_DOWN:	la a0, MARIO_STATUS
 		
 
 STEP_2:		call MOVE
+		###########			# movimento dos fantasmas (pegar estado como argumento para menor velocidade no medo e checar se esta preso)
 		la a0, STAGE
 		lh a0, 0(a0)			# carrega qual mapa esta sendo renderizado
 		beqz a0, LEVEL_1
@@ -284,10 +310,6 @@ ERASE:		la t0, OLD_CHAR_POS		# carrega a posicao antiga do mario
 		
 		li t0,0xFF200604		# carrega em t0 o endereco de troca de frame
 		sw s0,0(t0)			# mostra o sprite pronto para o usuario
-		la t0, CHAR_POS
-		lh a1, 0(t0)			# x
-		lh a2, 2(t0)			# y
-		mv a5, s0			# carrega o frame renderizado
 		la t1, MARIO_STATUS
 		lh a6, 0(t1)			# carrega em s0 a condicao do sprite (parado / mexendo)
 		li t0, 2
@@ -298,40 +320,8 @@ CHANGE_SPRITE:	xori a6, a6, 1
 		sh a6, 0(t1)
 		li s10, -1
 
-CONTINUE:	lh t0, 4(t1)			# carrega se o mario esta energizado ou nao
-		lh t1, 2(t1)			# carrega a direcao do personagem
-		beqz t1, ESQ
-		li t2, 1
-		beq t1, t2, DIR
-		li t2, 2
-		beq t1, t2, CIMA
-		
-BAIXO:		beqz t0, BAIXO_P
-		la a0, mario_down		# carrega o sprite do mario descendo
-		j PRINT
-BAIXO_P:	la a0, mario_pdown		# carrega o sprite do mario energizado descendo
-		j PRINT
-
-ESQ:		beqz t0, ESQ_P
-		la a0, mario_left		# carrega o sprite do mario pra esquerda
-		j PRINT
-ESQ_P:		la a0, mario_pleft		# carrega o sprite do mario energizado pra esquerda
-		j PRINT	
-
-DIR:		beqz t0, DIR_P
-		la a0, mario_right		# carrega o sprite do mario pra direita
-		j PRINT
-DIR_P:		la a0, mario_pright		# carrega o sprite do mario energizado pra direita	
-		j PRINT
-
-CIMA:		beqz t0, CIMA_P
-		la a0, mario_up			# carrega o sprite do mario pra cima
-		j PRINT
-CIMA_P:		la a0, mario_pup		# carrega o sprite do mario energizado pra cima
-
-PRINT:		li a7, 0
-		render(a0, a1, a2, 16, 16, a5, a6, a7)
-		mv s7, a6
+CONTINUE:	mv s7, a6
+		li a7, 0 
 		
 		# renderizar os fantasmas
 		# RED
@@ -376,12 +366,120 @@ PRINT:		li a7, 0
 		mv a5, s0
 		mv a6, s7
 		render(a0, a1, a2, 16, 16, a5, a6, a7)
+		
+		############			# checa colisao com os fantasmas e perda de vida/ morte do fantasma
+		g_colision(RED_POS, MARIO_CENTER, RED_TRAPED, 128, 128)
+		la t0, HIT_COUNT
+		lh t0, 0(t0)	
+		bne t0, zero, COL_SKIP		# pula a colisao dos outros fantasmas caso ja tenha colidido com um deles
+		g_colision(PINK_POS, MARIO_CENTER, PINK_TRAPED, 128, 128)
+		la t0, HIT_COUNT
+		lh t0, 0(t0)
+		bne t0, zero, COL_SKIP
+		g_colision(ORANGE_POS, MARIO_CENTER, ORANGE_TRAPED, 136, 112)
+		la t0, HIT_COUNT
+		lh t0, 0(t0)
+		bne t0, zero, COL_SKIP
+		g_colision(BLUE_POS, MARIO_CENTER, BLUE_TRAPED, 128, 96)
+		
+COL_SKIP:	la t0, CHAR_POS
+		lh a1, 0(t0)			# x
+		lh a2, 2(t0)			# y
+		mv a5, s0			# carrega o frame renderizado
+		la t0, HIT_COUNT		# carrega se o mario foi atingido ou nao
+		lh t0, 0(t0)
+		bne t0, zero, PRINT_D		# caso o mario tenha sido atingido, pula o load de sprites
+		la t1, MARIO_STATUS
+		lh t0, 4(t1)			# carrega se o mario esta energizado ou nao
+		lh t1, 2(t1)			# carrega a direcao do personagem
+		mv a6, s7
+		beqz t1, ESQ
+		li t2, 1
+		beq t1, t2, DIR
+		li t2, 2
+		beq t1, t2, CIMA
+		
+BAIXO:		beqz t0, BAIXO_P
+		la a0, mario_down		# carrega o sprite do mario descendo
+		j PRINT
+BAIXO_P:	la a0, mario_pdown		# carrega o sprite do mario energizado descendo
+		j PRINT
+
+ESQ:		beqz t0, ESQ_P
+		la a0, mario_left		# carrega o sprite do mario pra esquerda
+		j PRINT
+ESQ_P:		la a0, mario_pleft		# carrega o sprite do mario energizado pra esquerda
+		j PRINT	
+
+DIR:		beqz t0, DIR_P
+		la a0, mario_right		# carrega o sprite do mario pra direita
+		j PRINT
+DIR_P:		la a0, mario_pright		# carrega o sprite do mario energizado pra direita	
+		j PRINT
+
+CIMA:		beqz t0, CIMA_P
+		la a0, mario_up			# carrega o sprite do mario pra cima
+		j PRINT
+CIMA_P:		la a0, mario_pup		# carrega o sprite do mario energizado pra cima
+		j PRINT
+
+PRINT_D:	li a6, 0
+
+PRINT:		li a7, 0
+		render(a0, a1, a2, 16, 16, a5, a6, a7)
 
 		li t0,0xFF200604		# carrega em t0 o endereco de troca de frame
 		sw s0,0(t0)			# mostra o sprite pronto para o usuario
 		addi s10, s10, 1		# incrementa o contador da animacao
 		
-		li a7 32
+HIT_RESPAWN:	la t0, HIT_COUNT
+		lh t1, 0(t0)			# carrega se o mario foi atingido
+		beqz, t1, IGNORE_HIT		# se nao foi, carrega a rotina normal
+		li t1, 0
+		sh t1, 0(t0)			# atualiza o contador de hits
+		la t0, CHAR_POS
+		lh t1, 0(t0)			# x do mario
+		lh t2, 2(t0)			# y do mario
+		la t0, OLD_CHAR_POS
+		sh t1, 0(t0)
+		sh t2, 2(t0)			# atualiza para antigas posicoes
+		la t0, CHAR_POS	
+		li t1, 60
+		li t2, 112
+		sh t1, 0(t0)
+		sh t2, 2(t0)			# bota o mario na posicao inicial
+		la t0, RED_POS
+		li t1, 160
+		li t2, 112
+		sh t1, 0(t0)			
+		sh t2, 2(t0)
+		g_reset(PINK_POS, 128, 128, PINK_TIMER, PINK_TRAPED, 80)
+		g_reset(ORANGE_POS, 136, 112, ORANGE_TIMER, ORANGE_TRAPED, 40)
+		g_reset(BLUE_POS, 128, 96, BLUE_TIMER, BLUE_TRAPED, 0)
+		# reseta os fantasmas para o aprisionamento
+		li t0, 0			# contador do loop de morte
+
+DEATH_LOOP:	li t1, 40
+		addi t0, t0, 1
+		li a7, 32
+		li a0, 50
+		ecall
+		blt t0, t1, DEATH_LOOP
+
+		la t0, OLD_CHAR_POS
+		la a0, black
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		li a5, 0
+		li a6, 0
+		li a7, 0
+		render(a0, a1, a2, 16, 16, a5, a6, a7)
+		# apaga o rastro do mario morto
+		
+		j LIFE_CONFIG
+		
+	
+IGNORE_HIT:	li a7 32
 		li a0 50
 		ecall				# pausa por 50 ms
 		jal P_MUS
@@ -399,15 +497,15 @@ NEXT_LEVEL:	la a0, MARIO_STATUS
 		sh t2, 0(a0)
 		j SETUP				# volta para o setup
 						
-GAME_OVER:	la a0, win1
+GAME_OVER:	la a0, game_over1
 		li a1, 0
 		li a2, 0
 		li a5, 0
 		render_map(a0, a1, a2, 320, 240, a5)
-		la a0, win2
+		la a0, game_over2
 		li a5, 1
 		render_map(a0, a1, a2, 320, 240, a5)
-		mv a5, s8
+		mv s8, a5
 		# renderiza as 2 partes da derrota para o player
 		la a0, STAGE
 		li t0, 4
@@ -489,6 +587,7 @@ EXIT:		li a7, 10
 	.include "Sprites_data/orange_left.data"
 	.include "Sprites_data/orange_f.data"	
 	.include "Sprites_data/end_f.data"
+	.include "Sprites_data/death.data"
 	.include "Sprites_data/life.data"
 	.include "Sprites_data/life_2.data"
 	.include "Sprites_data/life_3.data"

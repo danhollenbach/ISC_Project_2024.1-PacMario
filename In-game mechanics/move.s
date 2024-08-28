@@ -68,16 +68,24 @@ FINISH:		la t0, PRESSED
 		sh t3, 0(t0)			# atualiza o valor de PRESSED para sair do loop
 		ret		
 		
-MOVE:		la t0, MARIO_STATUS		# checa a condi��o de movimento e anda 4 pixels para a dire��o desejada
+MOVE:		la t0, CHAR_POS
+		lh t1, 0(t0)
+		lh t2, 2(t0)
+		addi t1, t1, 4
+		addi t2, t2, 4
+		la t0, MARIO_CENTER
+		sh t1, 0(t0)			# atualiza o centro do mario (x) como sendo (x do boneco + 4)
+		sh t2, 2(t0)			# atualiza o centro do mario (y) como sendo (y do boneco + 4)
+		la t0, MARIO_STATUS		# checa a condicao de movimento e anda 4 pixels para a direcao desejada
 		la s5, MARIO_HITBOX1
-		la s6, MARIO_HITBOX2 
-		lh t0, 2(t0)			# carrega a dire��o do mario
-		beqz t0, CHAR_ESQ		# caso a dire��o seja 0, move para a esquerda
+		la s6, MARIO_HITBOX2
+		lh t0, 2(t0)			# carrega a direcao do mario
+		beqz t0, CHAR_ESQ		# caso a direcao seja 0, move para a esquerda
 		li t1, 1
-		beq t0, t1, CHAR_DIR		# caso a dire��o seja 1, move para a direita
+		beq t0, t1, CHAR_DIR		# caso a direcao seja 1, move para a direita
 		li t1, 2
-		beq t0, t1, CHAR_CIMA		# caso a dire��o seja 2, move para cima
-		j CHAR_BAIXO			# caso a dire��o seja 3, move para baixo
+		beq t0, t1, CHAR_CIMA		# caso a direcao seja 2, move para cima
+		j CHAR_BAIXO			# caso a direcao seja 3, move para baixo
 		
 		ret
 
@@ -205,4 +213,24 @@ CHAR_BAIXO:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 BREAK:		li t3, 0
 		sh t3, 0(t2)			# zera o contador de colisao
 		ret
+
+PRISON:		lh t0, 0(a0)			# ve se o fantasma esta aprisionado
+		beqz t0, RELEASE		# caso nao esteja aprisionado, vai para o fim da rotina
+		lh t0, 0(a4)
+		li t1, 80
+		bge t0, t1, FREE		# caso ja tenham se passado 3 segundos apos a prisao do fantasma, o libera
+		addi t0, t0, 1
+		sh t0, 0(a4)			# atualiza o contador
+		sh a1, 0(a5)			# guarda o x de aprisionamento na posicao
+		sh a2, 2(a5)			# guarda o y de aprisionamento na posicao
+		j RELEASE
 		
+FREE:		li t1, 0
+		sh t1, 0(a0)			# libera o fantasma da condicao de preso
+		sh t1, 0(a4)			# zera o contador
+		li a1, 160			# x do liberacao do fantasma
+		li a2, 112			# y de liberacao do fantasma
+		sh a1, 0(a5)
+		sh a2, 2(a5)
+
+RELEASE:	ret
