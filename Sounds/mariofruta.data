@@ -1,0 +1,4 @@
+mariofru_track0: .word 0 
+
+mariofru_track1: .word 6, 55, 50, 56, 50, 58, 50, 60, 50, 62, 50, 63, 150 
+
