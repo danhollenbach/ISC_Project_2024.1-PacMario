@@ -58,6 +58,7 @@ SKIP_MOVE:	la t2, COL
 
 CLOSE:		ret			# retorna
 
+
 CMAP_CHECK:	li t1, 8
 		li t2, 40
 		div t3, a1, t1
@@ -74,3 +75,39 @@ CMAP_CHECK:	li t1, 8
 		
 CRENDER:	mv a0, s3			# carrega no endereco de erase o mapa de moedas, caso o fantasma passe por um espaco que ainda tem moedas
 		ret
+
+
+G_HITCHECK:	li t0, 16			# divide o mapa em "blocos" de 16 x 16
+		div a0, a0, t0			# x do fantasma no mapa dividido
+		div a2, a2, t0			# x do mario no mapa dividido
+		beq a0, a2, CHECK2		# caso sejam iguais, checa o y, caso nao, retorna
+		j WRAP
+
+CHECK2:		div a1, a1, t0			# y do fantasma no mapa dividido
+		div a3, a3, t0			# y do mario no mapa dividido
+		beq a1, a3, HIT			# caso sejam iguais, trata a colisao
+		j WRAP
+
+HIT:		la t0, MARIO_STATUS
+		lh t0, 4(t0)			# carrega se o mario esta poderoso ou nao
+		beqz t0, G_KILL			# caso o mario esteja poderoso, mata o fantasma
+		la t0, HIT_COUNT
+		li t1, 1
+		sh t1, 0(t0)			# atualiza o contador de hit do mario
+		la a0, LIFECOUNT
+		lh t0, 0(a0)
+		addi t0, t0, -1
+		sh t0, 0(a0)			# atualiza o contador de vidas
+		la a0, death			# carrega o sprite do mario atingido na colisao
+		j WRAP
+		
+G_KILL:		la a0, CURRENT
+		lh t0, 0(a0)			# carrega o numero de pontos atual
+		addi t0, t0, 100		# soma o n de pontos ao matar o fantasma
+		sh t0, 0(a0)
+		li t0, 1
+		sh t0, 0(a5)			# atualiza o aprisionamento do fantasma
+		sh a6, 0(a4)			# atualiza o x do fantasma para o aprisionamento
+		sh a7, 2(a4)			# atualiza o y do fantasma para o aprisionamento
+		
+WRAP:		ret

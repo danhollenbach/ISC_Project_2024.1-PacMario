@@ -73,3 +73,47 @@ call CMAP_CHECK
 mv ra, s11
 
 .end_macro
+
+.macro prison_check(%aprisionamento, %xinicial, %yinicial, %timer, %posicao)
+la a0, %aprisionamento 	# endereco que contem se o fantasma esta preso ou nao
+li a1, %xinicial 	# posicao caso esteja preso (x)
+li a2, %yinicial	# posicao caso esteja preso (y)
+la a4, %timer		# endereco com o tempo que esteve preso
+la a5, %posicao		# endereco com o x e y do boneco
+mv s11, ra
+call PRISON	
+mv ra, s11
+
+.end_macro
+
+.macro g_colision(%ghost_pos, %mario_pos, %aprisionamento, %xinicial, %yinicial)
+la a4, %ghost_pos	# endereco com as posicoes do fantasma
+lh a0, 0(a4)		# x fantasma
+lh a1, 2(a4)		# y fantasma
+la t1, %mario_pos	# endereco com as posicoes do mario
+lh a2, 0(t1)		# x mario
+lh a3, 2(t1)		# y mario
+la a5, %aprisionamento	# carrega se o fantasma esta aprisionado ou nao
+li a6, %xinicial	# x de aprisionamento do fantasma
+li a7, %yinicial	# y de aprisionamento do fantasma
+mv s11, ra
+call G_HITCHECK
+mv ra, s11
+
+.end_macro
+
+.macro g_reset(%ghost_pos, %xinicial, %yinicial, %timer, %prison, %prisontime)
+la a0, %ghost_pos	# carrega o x e y dos fantasmas e os seta para o aprisionamento
+li t0, %xinicial	
+li t1, %yinicial
+sh t0, 0(a0)	
+sh t1, 2(a0)
+la a0, %timer		# atualiza o timer de aprisionamento para os fantasmas
+li t0, %prisontime
+sub t0, zero, t0
+sh t0, 0(a0)
+la a0, %prison		# atualiza o contador de prisao dos fantasmas
+li t0, 1
+sh t0, 0(a0)
+
+.end_macro
