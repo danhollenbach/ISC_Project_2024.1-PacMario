@@ -234,3 +234,5 @@ FREE:		li t1, 0
 		sh a2, 2(a5)
 
 RELEASE:	ret
+
+G_MOVE:	

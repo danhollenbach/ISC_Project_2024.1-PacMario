@@ -109,6 +109,17 @@ SETUP:		li s10, 0			# contador para a animacao do sprite
 		li a5, 1
 		render_map(a0, a1, a2, 320, 240, a5)
 		# deixa a tela preta em ambos frames
+		
+		la t0, RED_POS
+		li t1, 160
+		li t2, 112
+		sh t1, 0(t0)			
+		sh t2, 2(t0)
+		g_reset(PINK_POS, 128, 128, PINK_TIMER, PINK_TRAPED, 80)
+		g_reset(ORANGE_POS, 136, 112, ORANGE_TIMER, ORANGE_TRAPED, 40)
+		g_reset(BLUE_POS, 128, 96, BLUE_TIMER, BLUE_TRAPED, 0)
+		# reseta a posicao dos fantasmas
+		
 		li a7, 32
 		li a0, 1000			
 		ecall				# pausa por 1 s
@@ -123,7 +134,7 @@ SETUP:		li s10, 0			# contador para a animacao do sprite
 		la s4, mapa_2c
 		j PRINT_MAP
 		
-MAPA1:		la a0,mapa_1n			# carrega o endereco do mapa1 em a0
+MAPA1:		la a0,mapa_1			# carrega o endereco do mapa1 em a0
 		mv s2, a0
 		la s3, moedas_1n		# coloca o endereço do mapa de moedas 
 		la s4, mapa_1c 
@@ -132,7 +143,7 @@ PRINT_MAP:	li a1,0				# x = 0
 		li a2,0				# y = 0
 		li a5,0				# frame = 0
 		render_map(a0, a1, a2, 320, 240, a5)
-		li a5,1				# frame = 1
+		li a5, 1
 		mv a0, s2
 		render_map(a0, a1, a2, 320, 240, a5)
 		# esse setup serve pra desenhar o "mapa" nos dois frames antes do "jogo" comecar
@@ -148,14 +159,6 @@ PRINT_MAP:	li a1,0				# x = 0
 		la a0, OLD_CHAR_POS
 		sh t0, 0(a0)			
 		sh t1, 2(a0)			# reseta a posicao do mario para a inicial (x = 60, y = 112) , assim como OLD_CHAR_POS
-		la a0, mario_down
-		li a1, 60
-		li a2, 112
-		li a5, 0
-		li a6, 0
-		li a7, 0
-		render(a0, a1, a2, 16, 16, a5, a6, a7)
-		# spawna o mario na condicao inicial para comecar o game loop
 		
 HUD:		li a7, 104
 		la a0, SCOREBOARD
@@ -173,7 +176,16 @@ HUD:		li a7, 104
 		li a2, 116
 		ecall				# printa o contador de vidas
 		
-LIFE_CONFIG:	la a0, LIFECOUNT		# checa a quantidade de vidas do player para imprimir no bitmap ou levar ao game over
+LIFE_CONFIG:	la a0, mario_down
+		li a1, 60
+		li a2, 112
+		li a5, 0
+		li a6, 0
+		li a7, 0
+		render(a0, a1, a2, 16, 16, a5, a6, a7)
+		# spawna o mario na condicao inicial para comecar o game loop
+		
+		la a0, LIFECOUNT		# checa a quantidade de vidas do player para imprimir no bitmap ou levar ao game over
 		lh t0, 0(a0)
 		beqz t0, GAME_OVER
 		li a1, 280
@@ -271,7 +283,7 @@ STEP_2:		call MOVE
 		la s5, moedas_2c		# mapa de colisao de moedas 2
 		j ERASE
 
-LEVEL_1:	la s2, mapa_1n			# mapa 1
+LEVEL_1:	la s2, mapa_1			# mapa 1
 		la s5, moedas_1c		# mapa de colisao de moedas 2
 
 ERASE:		la t0, OLD_CHAR_POS		# carrega a posicao antiga do mario
@@ -308,8 +320,6 @@ ERASE:		la t0, OLD_CHAR_POS		# carrega a posicao antiga do mario
 		mv a0, s2
 		render(a0, a1, a2, 16, 16, a5, a6, a7)
 		
-		li t0,0xFF200604		# carrega em t0 o endereco de troca de frame
-		sw s0,0(t0)			# mostra o sprite pronto para o usuario
 		la t1, MARIO_STATUS
 		lh a6, 0(t1)			# carrega em s0 a condicao do sprite (parado / mexendo)
 		li t0, 2
@@ -550,7 +560,7 @@ EXIT:		li a7, 10
 	.include "Sprites_data/menu1.data"
 	.include "Sprites_data/black.data"
 	.include "Sprites_data/menu2.data"
-	.include "Sprites_data/mapa_1n.data"
+	.include "Sprites_data/mapa_1.data"
 	.include "Sprites_data/mapa_1c.data"
 	.include "Sprites_data/moedas_1n.data"
 	.include "Sprites_data/moedas_1c.data"

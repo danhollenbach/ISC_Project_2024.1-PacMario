@@ -117,3 +117,18 @@ li t0, 1
 sh t0, 0(a0)
 
 .end_macro
+
+.macro ghost_move(%status, %prison, %hitbox1, %hitbox2, %colmap, %positiong, %positionm)
+la a0, %status		# carrega o estado do fantasma para saber qual a velocidade
+lh a0, 4(a0)
+la a1, %prison		# carrega o estado de aprisionamento dos fantasmas
+la a2, %hitbox1		# coordenadas da primeira hitbox do fantasma
+la a3, %hitbox2		# coordenadas da segunda hitbox do fantasma
+la a5, %colmap		# o mapa de colisao a ser considerado
+la a6, %positiong	# endereco que contem a posicao do fantasma
+la a7, %positionm	# endereco que contem a posicao do mario
+mv s11, ra
+call G_MOVE
+mv ra, s11
+
+.end_macro

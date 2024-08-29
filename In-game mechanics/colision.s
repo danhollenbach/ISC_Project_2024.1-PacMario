@@ -98,6 +98,9 @@ HIT:		la t0, MARIO_STATUS
 		lh t0, 0(a0)
 		addi t0, t0, -1
 		sh t0, 0(a0)			# atualiza o contador de vidas
+		la t0, MARIO_STATUS
+		li t1, 3
+		sh t1, 2(t0)			# bota o mario descendo apos a morte (estado inicial)
 		la a0, death			# carrega o sprite do mario atingido na colisao
 		j WRAP
 		
