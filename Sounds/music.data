@@ -14,7 +14,7 @@
 M_BG: .word M_BG_NOTES, 148, 0, 0, 0, 87, 60
 
 #SOUND EFFECTS:
-POWER:	.word POWER_NOTES, 30, 0, 0, 0, 87, 60
+POWER_UP:	.word POWER_NOTES, 30, 0, 0, 0, 87, 60
 DEATH: .word DEATH_NOTES, 17, 0, 0, 0, 87, 60
 WIN:	.word WIN_NOTES, 27, 0, 0, 0, 87, 60
 

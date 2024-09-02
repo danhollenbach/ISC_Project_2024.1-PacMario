@@ -267,6 +267,11 @@ POWER2:		la t1, TIMER2
 POWER_DOWN:	la a0, MARIO_STATUS
 		lh t0, 4(a0)			# carrega se o mario esta poderoso ou nao
 		bne t0, zero, STEP_2		# caso esteja normal, ignora essa rotina
+		# to trabalhando aqui
+		la t0, BATIDA
+    	la t1, POWER_UP
+    	sw t1, (t0)
+
 		addi s9, s9, 1			# adiciona um ao contador de tempo
 		bne s9, t1, STEP_2
 		li t1, 1
