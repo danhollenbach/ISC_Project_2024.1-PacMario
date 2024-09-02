@@ -91,9 +91,9 @@ CHECK2:		div a1, a1, t0			# y do fantasma no mapa dividido
 HIT:		la t0, MARIO_STATUS
 		lh t0, 4(t0)			# carrega se o mario esta poderoso ou nao
 		beqz t0, G_KILL			# caso o mario esteja poderoso, mata o fantasma
-
-		la t0, BATIDA
-    	la t1, DEATH
+		# o Dan ta trabalhando aqui ainda
+		la t0, BATIDA			# efeito sonoro de colisao
+    	la t1, DEATH			
     	sw t1, (t0)
 
 		la t0, HIT_COUNT

@@ -495,7 +495,13 @@ IGNORE_HIT:	li a7 32
 		jal P_MUS
 		j GAME_LOOP
 
-NEXT_LEVEL:	la a0, MARIO_STATUS
+NEXT_LEVEL:	
+		# o Dan ta trabalhando aqui 
+		la t0, BATIDA
+    	la t1, WIN
+    	sw t1, (t0)
+		
+		la a0, MARIO_STATUS
 		li t0, 1
 		sh t0, 4(a0)			# zera o contador de poder do mario
 		la a0, POINTS
