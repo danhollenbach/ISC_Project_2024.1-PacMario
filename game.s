@@ -293,9 +293,10 @@ MOVEMENT:	############# coloca os fantasmas presos ou nao
 		ghost_move(ORANGE_STATUS, ORANGE_TRAPED, ORANGE_OPPOSITE, s8, ORANGE_OLD_POS, ORANGE_POS, ORANGE_TURN, ORANGE_CENTER)
 		ghost_move(BLUE_STATUS, BLUE_TRAPED, BLUE_OPPOSITE, s8, BLUE_OLD_POS, BLUE_POS, BLUE_TURN, BLUE_CENTER)
 		############ movimento dos fantasmas (pegar estado como argumento para menor velocidade no medo e checar se esta preso)
+		mv t0, s2
 
-ERASE:		la t0, OLD_CHAR_POS		# carrega a posicao antiga do mario
-		mv a0, s2			# mapa de base para o apagamento
+ERASE:		mv a0, t0			# mapa de base para o apagamento
+		la t0, OLD_CHAR_POS		# carrega a posicao antiga do mario
 		lh a1, 0(t0)			# x
 		lh a2, 2(t0)			# y
 		mv a5, s0			# carrega o frame
@@ -478,6 +479,7 @@ DEATH_LOOP:	li t1, 40
 		la t2, DEATH_ERASE
 		li t1, 1
 		sh t1, 0(t2)			# atualiza o contador para o erase dos bonecos no reset do mapa
+		mv t0, s3
 		j ERASE
 		# apaga o rastro do mario morto
 		
