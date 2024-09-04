@@ -51,12 +51,12 @@ mv ra, s11
 
 .end_macro
 
-.macro ghost_dir(%cima, %baixo, %direita, %esquerda, %direcao, %medo)
+.macro ghost_dir(%cima, %baixo, %direita, %esquerda, %status, %medo)
 la a1, %cima		# sprite de cima
 la a2, %baixo		# sprite de baixo
 la a3, %direita		# sprite da direita
 la a4, %esquerda	# sprite da esquerda
-mv a5, %direcao		# direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo)
+la a5, %status		# direcao (0 = esquerda, 1 = direita, 2 = cima, 3 = baixo)
 la a6, %medo		# carrega o sprite do fantasma com medo
 mv s11, ra
 call GHOST_DIR
@@ -74,12 +74,14 @@ mv ra, s11
 
 .end_macro
 
-.macro prison_check(%aprisionamento, %xinicial, %yinicial, %timer, %posicao)
+.macro prison_check(%aprisionamento, %xinicial, %yinicial, %timer, %posicao, %status, %old_gpos)
 la a0, %aprisionamento 	# endereco que contem se o fantasma esta preso ou nao
 li a1, %xinicial 	# posicao caso esteja preso (x)
 li a2, %yinicial	# posicao caso esteja preso (y)
 la a4, %timer		# endereco com o tempo que esteve preso
 la a5, %posicao		# endereco com o x e y do boneco
+la a6, %status		# endereco com as informacoes do fantasma
+la a7, %old_gpos	# posicao antiga do fantasma
 mv s11, ra
 call PRISON	
 mv ra, s11
@@ -102,8 +104,13 @@ mv ra, s11
 
 .end_macro
 
-.macro g_reset(%ghost_pos, %xinicial, %yinicial, %timer, %prison, %prisontime)
+.macro g_reset(%ghost_pos, %xinicial, %yinicial, %timer, %prison, %prisontime, %center, %turncounter, %status, %old_gpos)
 la a0, %ghost_pos	# carrega o x e y dos fantasmas e os seta para o aprisionamento
+la a1, %old_gpos	# posicao antiga do fantasma
+lh t0, 0(a0)
+lh t1, 2(a0)
+sh t0, 0(a1)
+sh t1, 2(a1)		# atualiza as posicoes antigas dos fantasmas
 li t0, %xinicial	
 li t1, %yinicial
 sh t0, 0(a0)	
@@ -115,20 +122,51 @@ sh t0, 0(a0)
 la a0, %prison		# atualiza o contador de prisao dos fantasmas
 li t0, 1
 sh t0, 0(a0)
+la a0, %turncounter	# contador de virada dos fantasmas
+li t0, 0
+sh t0, 0(a0)
+la a0, %center		# reseta o centro dos fantasmas
+li t0 160
+li t1, 112
+sh t0, 0(a0)
+sh t1, 2(a0)
+la a0, %status
+li t1, 3
+sh t1, 2(a0)		# reseta a direcao do fantasma
 
 .end_macro
 
-.macro ghost_move(%status, %prison, %hitbox1, %hitbox2, %colmap, %positiong, %positionm)
+.macro ghost_move(%status, %prison, %oposite, %colmap, %old_positiong, %positiong, %turnstatus, %center)
 la a0, %status		# carrega o estado do fantasma para saber qual a velocidade
-lh a0, 4(a0)
 la a1, %prison		# carrega o estado de aprisionamento dos fantasmas
-la a2, %hitbox1		# coordenadas da primeira hitbox do fantasma
-la a3, %hitbox2		# coordenadas da segunda hitbox do fantasma
-la a5, %colmap		# o mapa de colisao a ser considerado
+la a3, %oposite		# carrega a direcao oposta dos fantasmas
+mv a4, %colmap		# mapa de colisao dos fantasmas
+la a5, %old_positiong	# posicao antiga do fantasma
 la a6, %positiong	# endereco que contem a posicao do fantasma
-la a7, %positionm	# endereco que contem a posicao do mario
+la a7, %turnstatus	# endereco que contem o contador de mudanca de direcao do fantasma
+la t0, %center		# centro do fantasma para testar as intersecoes
 mv s11, ra
 call G_MOVE
 mv ra, s11
+
+.end_macro
+
+.macro red_reset()
+la t0, RED_TURN			# zera o contador de virada
+li t1, 0
+sh t1, 0(t0)
+la t0, RED_STATUS		# zera a direcao
+li t1, 3
+sh t1, 2(t0)
+la t0, RED_POS
+lh t1, 0(t0)
+lh t2, 2(t0)
+la t3, RED_OLD_POS
+sh t1, 0(t3)
+sh t2, 2(t3)			# atualiza a posicao antiga com a atual e salva a nova
+li t1, 156
+li t2, 112
+sh t1, 0(t0)			
+sh t2, 2(t0)
 
 .end_macro

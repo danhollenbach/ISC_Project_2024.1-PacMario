@@ -63,11 +63,14 @@ RET:		ret				# retorna
 GHOST_DIR:	la t0, MARIO_STATUS
 		lh t0, 4(t0)			# carrega se o mario esta poderoso ou nao
 		beqz t0, FRIGHT
-		beqz a5, G_LEFT
+		li t1, 1
+		sh t1, 4(a5)			# tira o medo dos fantasmas
+		lh t1, 2(a5)			# carrega a direcao do fantasma
+		beqz t1, G_LEFT
 		li t0, 1
-		beq a5, t0, G_RIGHT
+		beq t1, t0, G_RIGHT
 		li t0, 2
-		beq a5, t0, G_UP
+		beq t1, t0, G_UP
 		
 G_DOWN:		mv a0, a2			# carrega o sprite do fantasma para baixo
 		j RET
@@ -81,7 +84,9 @@ G_RIGHT:	mv a0, a3			# carrega o sprite do fantasma para a direita
 G_UP:		mv a0, a1			# carrega o sprite do fantasma para cima
 		j RET
 		
-FRIGHT:		li t1, 60
+FRIGHT:		li t1, 0
+		sh t1, 4(a5)			# coloca os fantasmas assustados
+		li t1, 60
 		bge s9, t1, FINISHING		# caso o contador de poder esteja chegando ao fim, carrega os fantasmas voltando ao normal
 		mv a0, a6			# carrega o sprite do fantasma com medo
 		j RET

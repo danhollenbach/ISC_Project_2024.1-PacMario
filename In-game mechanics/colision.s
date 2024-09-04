@@ -77,15 +77,15 @@ CRENDER:	mv a0, s3			# carrega no endereco de erase o mapa de moedas, caso o fan
 		ret
 
 
-G_HITCHECK:	li t0, 16			# divide o mapa em "blocos" de 16 x 16
-		div a0, a0, t0			# x do fantasma no mapa dividido
-		div a2, a2, t0			# x do mario no mapa dividido
-		beq a0, a2, CHECK2		# caso sejam iguais, checa o y, caso nao, retorna
+G_HITCHECK:	li t0, 225			# parametro para comparacao
+		sub a0, a0, a2			# x do fantasma - x do mario
+		mul a0, a0, a0			# diferenca ao quadrado = tirar o negativo que possa ocorrer na subtracao
+		blt a0, t0, CHECK2		# caso a distancia seja menor que 16 (tamanho do sprite) checa o y
 		j WRAP
 
-CHECK2:		div a1, a1, t0			# y do fantasma no mapa dividido
-		div a3, a3, t0			# y do mario no mapa dividido
-		beq a1, a3, HIT			# caso sejam iguais, trata a colisao
+CHECK2:		sub a1, a1, a3			# y do fantasma - y do mario
+		mul a1, a1, a1			# diferenca ao quadrado = tirar o negativo que possa ocorrer na subtracao
+		blt a1, t0, HIT			# caso a distancia seja menor que 16, trata a colisao
 		j WRAP
 
 HIT:		la t0, MARIO_STATUS
@@ -104,13 +104,14 @@ HIT:		la t0, MARIO_STATUS
 		la a0, death			# carrega o sprite do mario atingido na colisao
 		j WRAP
 		
-G_KILL:		la a0, CURRENT
+G_KILL:		li a7 32
+		li a0, 100
+		ecall				# pausa o jogo momentaneamente para a morte do fantasma
+		la a0, CURRENT
 		lh t0, 0(a0)			# carrega o numero de pontos atual
 		addi t0, t0, 100		# soma o n de pontos ao matar o fantasma
 		sh t0, 0(a0)
 		li t0, 1
 		sh t0, 0(a5)			# atualiza o aprisionamento do fantasma
-		sh a6, 0(a4)			# atualiza o x do fantasma para o aprisionamento
-		sh a7, 2(a4)			# atualiza o y do fantasma para o aprisionamento
 		
 WRAP:		ret
