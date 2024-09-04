@@ -255,6 +255,11 @@ POWER2:		la t1, TIMER2
 POWER_DOWN:	la a0, MARIO_STATUS
 		lh t0, 4(a0)			# carrega se o mario esta poderoso ou nao
 		bne t0, zero, STEP_2		# caso esteja normal, ignora essa rotina
+		# to trabalhando aqui
+		la t0, BATIDA
+    	la t1, POWER_UP
+    	sw t1, (t0)
+
 		addi s9, s9, 1			# adiciona um ao contador de tempo
 		bne s9, t1, STEP_2
 		li t1, 1
@@ -483,7 +488,13 @@ IGNORE_HIT:	li a7 32
 		jal P_MUS
 		j GAME_LOOP
 
-NEXT_LEVEL:	la a0, MARIO_STATUS
+NEXT_LEVEL:	
+		# o Dan ta trabalhando aqui 
+		la t0, BATIDA
+    	la t1, WIN
+    	sw t1, (t0)
+		
+		la a0, MARIO_STATUS
 		li t0, 1
 		sh t0, 4(a0)			# zera o contador de poder do mario
 		la a0, POINTS

@@ -91,6 +91,11 @@ CHECK2:		sub a1, a1, a3			# y do fantasma - y do mario
 HIT:		la t0, MARIO_STATUS
 		lh t0, 4(t0)			# carrega se o mario esta poderoso ou nao
 		beqz t0, G_KILL			# caso o mario esteja poderoso, mata o fantasma
+		# o Dan ta trabalhando aqui ainda
+		la t0, BATIDA			# efeito sonoro de colisao
+    	la t1, DEATH			
+    	sw t1, (t0)
+
 		la t0, HIT_COUNT
 		li t1, 1
 		sh t1, 0(t0)			# atualiza o contador de hit do mario
