@@ -1,6 +1,10 @@
 .data
+############# informacoes gerais/mapa
+
 STAGE:		.half 3				# nivel (0 = mapa 1, 1 = mapa 2, 2 = victory, 3 = menu, 4 = game over/victory)
 DEATH_ERASE:	.half 0				# checa se trata-se do apagamento apos a colisao
+
+############# Player
 
 CHAR_POS: 	.half 60, 112			# x, y
 OLD_CHAR_POS:	.half 60, 112			# x, y
@@ -10,12 +14,16 @@ MARIO_HITBOX2:  .half 0,0
 MARIO_CENTER:	.half 0,0			# centro do mario
 HIT_COUNT:	.half 0				# checa pra ver se o mario colidiu com algo 
 
+############# Pontos e contadores (colisao, apertar de teclas e timers de poder)
+
 POINTS:		.half 0				# contagem de pontos para a passagem do mapa / condicao de vitoria
 CURRENT:	.half 0				# contador fisico da pontuacao que sera mostrado no bitmap display
 TIMER1:		.half 100			# contador do power do mario na primeira fase (5 s)
 TIMER2:		.half 80			# contador do power do mario na segunda fase (4 s)
 PRESSED:	.half 0				# endereco para verificar o cheat pressionado (0 = nao, 1 = sim)
 COL:		.half 0				# checa colisao (0 = n, 1 = ss)
+
+############# fantasmas (vermelho, rosa, laranja e azul)
 
 RED_POS:	.half 156,112			# x, y
 RED_OLD_POS:	.half 156,112			# x, y
@@ -52,6 +60,8 @@ BLUE_CENTER:	.half 160,112			# valores para a checagem de intersecoes do mapa
 BLUE_TIMER:	.half 0				# conta o n de segundos que o fantasma esta preso	
 BLUE_TURN:	.half 0				# contador para mudanca de direcao
 BLUE_OPPOSITE: 	.half 2				# carrega a direcao oposta a atual	
+
+############# HUD (pontos, vidas e high)
 
 SCOREBOARD:	.string "SCORE"	
 RECORDE:	.string "HIGH"	
@@ -449,8 +459,6 @@ PRINT:		li a7, 0
 HIT_RESPAWN:	la t0, HIT_COUNT
 		lh t1, 0(t0)			# carrega se o mario foi atingido
 		beqz, t1, IGNORE_HIT		# se nao foi, carrega a rotina normal
-		li t1, 0
-		sh t1, 0(t0)			# atualiza o contador de hits
 		la t0, CHAR_POS
 		lh t1, 0(t0)			# x do mario
 		lh t2, 2(t0)			# y do mario
@@ -467,18 +475,14 @@ HIT_RESPAWN:	la t0, HIT_COUNT
 		g_reset(ORANGE_POS, 136, 112, ORANGE_TIMER, ORANGE_TRAPED, 40, ORANGE_CENTER, ORANGE_TURN, ORANGE_STATUS, ORANGE_OLD_POS)
 		g_reset(BLUE_POS, 128, 96, BLUE_TIMER, BLUE_TRAPED, 0, BLUE_CENTER, BLUE_TURN, BLUE_STATUS, BLUE_OLD_POS)
 		# reseta os fantasmas para o aprisionamento
-		li t0, 0			# contador do loop de morte
+		li a6, 1			# contador para o loop de morte
 
-DEATH_LOOP:	li t1, 40
-		addi t0, t0, 1
-		li a7, 32
-		li a0, 50
-		ecall
-		blt t0, t1, DEATH_LOOP
-
-		la t2, DEATH_ERASE
-		li t1, 1
-		sh t1, 0(t2)			# atualiza o contador para o erase dos bonecos no reset do mapa
+DEATH_LOOP:	li t1, 70
+		addi a6, a6, 1
+		blt a6, t1, IGNORE_HIT
+		la t0, HIT_COUNT
+		li t1, 0
+		sh t1, 0(t0)			# atualiza o contador de hits
 		mv t0, s3
 		j ERASE
 		# apaga o rastro do mario morto
@@ -488,6 +492,9 @@ IGNORE_HIT:	li a7 32
 		li a0 50
 		ecall				# pausa por 50 ms
 		jal P_MUS
+		la a0, HIT_COUNT
+		lh t1, 0(a0)
+		bne t1, zero, DEATH_LOOP	# caso o mario tenha sido atingido, volta para o loop de morte
 		j GAME_LOOP
 
 NEXT_LEVEL:	
@@ -558,6 +565,9 @@ EXIT:		li a7, 10
 
 .data
     	.include "Sounds/music.data"
+    	
+    	############# informacoes de mapa/colisao de mapa
+    	
 	.include "Sprites_data/menu1.data"
 	.include "Sprites_data/black.data"
 	.include "Sprites_data/menu2.data"
@@ -569,6 +579,11 @@ EXIT:		li a7, 10
 	.include "Sprites_data/mapa_2c.data"
 	.include "Sprites_data/moedas_2.data"
 	.include "Sprites_data/moedas_2c.data"
+	.include "Sprites_data/ghost_1c.data"
+	.include "Sprites_data/ghost_2c.data"
+	
+	############# sprites do Player
+	
 	.include "Sprites_data/mario_up.data"
 	.include "Sprites_data/mario_down.data"
 	.include "Sprites_data/mario_left.data"
@@ -577,6 +592,10 @@ EXIT:		li a7, 10
 	.include "Sprites_data/mario_pdown.data"
 	.include "Sprites_data/mario_pleft.data"
 	.include "Sprites_data/mario_pright.data"
+	.include "Sprites_data/death.data"
+	
+	############# Sprites dos fantasmas
+	
 	.include "Sprites_data/red_up.data"
 	.include "Sprites_data/red_down.data"
 	.include "Sprites_data/red_right.data"
@@ -598,16 +617,19 @@ EXIT:		li a7, 10
 	.include "Sprites_data/orange_left.data"
 	.include "Sprites_data/orange_f.data"	
 	.include "Sprites_data/end_f.data"
-	.include "Sprites_data/death.data"
+	
+	############# Sprites de artefatos / estaticos
+	
 	.include "Sprites_data/life.data"
 	.include "Sprites_data/life_2.data"
 	.include "Sprites_data/life_3.data"
  	.include "Sprites_data/game_over1.data"
 	.include "Sprites_data/game_over2.data"
-	.include "Sprites_data/ghost_1c.data"
-	.include "Sprites_data/ghost_2c.data"
 	.include "Sprites_data/win1.data"
 	.include "Sprites_data/win2.data"
+	
+	############# Arquivos de mecanicas complementares
+	
 	.include "In-game mechanics/render.s"
 	.include "In-game mechanics/move.s"
 	.include "In-game mechanics/colision.s"
