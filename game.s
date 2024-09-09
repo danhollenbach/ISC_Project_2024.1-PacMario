@@ -338,6 +338,7 @@ ERASE:		mv a0, t0			# mapa de base para o apagamento
 		la t1, DEATH_ERASE
 		lh t0, 0(t1)
 		beqz t0, N_RESPAWN		# caso o contador de erase de morte seja 0, continua normalmente, caso contrario, trata a rotina
+		
 		li t0, 0
 		sh t0, 0(t1)			# atualiza o contador de erase de morte
 		j LIFE_CONFIG
@@ -483,6 +484,9 @@ DEATH_LOOP:	li t1, 70
 		la t0, HIT_COUNT
 		li t1, 0
 		sh t1, 0(t0)			# atualiza o contador de hits
+		la t0, DEATH_ERASE
+		li t1, 1
+		sh t1, 0(t0)			# atualiza o valor do erase de morte para apagar o rastro dos bonecos 
 		mv t0, s3
 		j ERASE
 		# apaga o rastro do mario morto

@@ -457,6 +457,6 @@ OP_ESQ:		li a7, 0
 		j STILL
 
 STILL_FREE:	li t1, 0
-		sh t1, 0(a1)
+		sh t1, 0(a1)			# liberta o fantasma da condicao de aprisionamento completamente (apos esperar um loop para erase do rastro)
 
 STILL:		ret

@@ -91,10 +91,6 @@ CHECK2:		sub a1, a1, a3			# y do fantasma - y do mario
 HIT:		la t0, MARIO_STATUS
 		lh t0, 4(t0)			# carrega se o mario esta poderoso ou nao
 		beqz t0, G_KILL			# caso o mario esteja poderoso, mata o fantasma
-		# o Dan ta trabalhando aqui ainda
-		la t0, BATIDA			# efeito sonoro de colisao
-    	la t1, DEATH			
-    	sw t1, (t0)
 
 		la t0, HIT_COUNT
 		li t1, 1
@@ -106,6 +102,10 @@ HIT:		la t0, MARIO_STATUS
 		la t0, MARIO_STATUS
 		li t1, 3
 		sh t1, 2(t0)			# bota o mario descendo apos a morte (estado inicial)
+		# o Dan ta trabalhando aqui ainda
+		la t0, BATIDA			# efeito sonoro de colisao
+    	la t1, DEATH			
+    	sw t1, (t0)
 		la a0, death			# carrega o sprite do mario atingido na colisao
 		j WRAP
 		
