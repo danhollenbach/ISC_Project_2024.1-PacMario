@@ -478,7 +478,7 @@ HIT_RESPAWN:	la t0, HIT_COUNT
 		# reseta os fantasmas para o aprisionamento
 		li a6, 1			# contador para o loop de morte
 
-DEATH_LOOP:	li t1, 70
+DEATH_LOOP:	li t1, 60
 		addi a6, a6, 1
 		blt a6, t1, IGNORE_HIT
 		la t0, HIT_COUNT
