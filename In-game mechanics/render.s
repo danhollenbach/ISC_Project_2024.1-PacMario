@@ -86,10 +86,17 @@ G_UP:		mv a0, a1			# carrega o sprite do fantasma para cima
 		
 FRIGHT:		li t1, 0
 		sh t1, 4(a5)			# coloca os fantasmas assustados
+		la a5, STAGE
+		lh a5, 0(a5)			# carrega o nivel atual
+		beqz a5, LONG_RUN		# se no primeiro mapa, carrega o maior timer
 		li t1, 60
-		bge s9, t1, FINISHING		# caso o contador de poder esteja chegando ao fim, carrega os fantasmas voltando ao normal
-		mv a0, a6			# carrega o sprite do fantasma com medo
+		j TIME_CHECK	
+		
+LONG_RUN:	li t1, 80		
+TIME_CHECK:	bge s9, t1, FINISHING		# se o contador estiver chegando ao fim, coloca os fantasmas piscando
+		mv a0, a6			# carrega o sprite de medo
 		j RET
+		
 		
 FINISHING:	la a0, end_f	
 		j RET

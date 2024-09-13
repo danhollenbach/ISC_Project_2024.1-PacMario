@@ -103,9 +103,10 @@ CHAR_ESQ:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		colision(s4, t2, t3, t4, t5) 	# checa a colisao
 		la t2, COL
 		lh t3, 0(t2)
-		bne t3, zero, BREAK		# caso contra a parede, evita a atualizacao da posicao
+		beqz t3, ROTATEL		# caso contra a parede, evita a atualizacao da posicao
+		j BREAK
 		
-		la a0,CHAR_POS
+ROTATEL:	la a0,CHAR_POS
 		lh t1,0(t0)			# carrega o x atual do personagem
 		addi t1,t1,-4			# decrementa 4 pixeis
 		
@@ -134,9 +135,10 @@ CHAR_DIR:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		colision(s4, t2, t3, t4, t5) 	# checa a colisao
 		la t2, COL
 		lh t3, 0(t2)
-		bne t3, zero, BREAK		# caso contra a parede, evita a atualizacao da posicao
+		beqz t3, ROTATER		# caso contra a parede, evita a atualizacao da posicao
+		j BREAK
 		
-		la t0,CHAR_POS
+ROTATER:	la t0,CHAR_POS
 		lh t1,0(t0)			# carrega o x atual do personagem
 		addi t1,t1,4			# incrementa 4 pixeis
 		sh t1,0(t0)			# salva
@@ -164,9 +166,10 @@ CHAR_CIMA:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		colision(s4, t2, t3, t4, t5) 	# checa a colisao
 		la t2, COL
 		lh t3, 0(t2)
-		bne t3, zero, BREAK		# caso contra a parede, evita a atualizacao da posicao
+		beqz t3, ROTATEU		# caso contra a parede, evita a atualizacao da posicao
+		j BREAK
 		
-		la t0,CHAR_POS
+ROTATEU:	la t0,CHAR_POS
 		lh t1,2(t0)			# carrega o y atual do personagem
 		addi t1,t1,-4			# decrementa 4 pixeis
 		sh t1,2(t0)			# salva
@@ -194,9 +197,10 @@ CHAR_BAIXO:	la t0,CHAR_POS			# carrega em t0 o endereco de CHAR_POS
 		colision(s4, t2, t3, t4, t5) 	# checa a colisao
 		la t2, COL
 		lh t3, 0(t2)
-		bne t3, zero, BREAK		# caso contra a parede, evita a atualizacao da posicao
+		beqz t3, ROTATED		# caso contra a parede, evita a atualizacao da posicao
+		j BREAK
 		
-		la t0,CHAR_POS
+ROTATED:	la t0,CHAR_POS
 		lh t1,2(t0)			# carrega o y atual do personagem
 		addi t1,t1,4			# incrementa 4 pixeis
 		sh t1,2(t0)			# salva
@@ -245,6 +249,7 @@ FREE:		li t1, 2
 
 RELEASE:	ret
 
+
 G_MOVE:		lh a2, 0(a1)			# carrega se os fantasmas estao presos
 		li t1, 1
 		beq a2, t1, STILL		# caso fantasmas estejam presos, pula o movimento
@@ -267,8 +272,8 @@ G_SENTIDO:	li t1, 7			# cor do bloco de intersecao
 		j SENTIDO2
 		
 TURN_CHECK:	lh t1, 0(a7)			# carrega o contador de virar do fantasma
-		beqz t1, TURN			# caso acabado de entrar na intersecao, atualiza o contador e muda a direcao
-		j SENTIDO3		
+		bne t1, zero, SENTIDO3		# caso acabado de entrar na intersecao, atualiza o contador e muda a direcao
+		j TURN	
 		
 SENTIDO2:	lh t1, 0(a7)
 		bne t1, zero, TURN_UPDATE	# caso o contador de virada esteja em 1 ao sair da intersecao, o atualiza 
@@ -411,8 +416,10 @@ UP_CHECK:	addi t2, t2, -8			# checa para ver o movimento para cima
 		li a5, 2			# valor de direcao no status dos personagens (cima = 2)
 
 CHECK_DIST:	lh a2, 0(a3)			# carrega a direcao oposta do fantasma
-		beq a5, a2, TURN_LOOP		# se a direcao for a oposta do fantasma, ignora ela
-		la a7, CHAR_POS			# endereco da posicao do mario	
+		bne a5, a2, PIT		# se a direcao for a oposta do fantasma, ignora ela
+		j TURN_LOOP
+		
+PIT:		la a7, CHAR_POS			# endereco da posicao do mario	
 		lh a2, 0(a7)			# x da posicao do mario
 		lh a7, 2(a7)			# y da posicao do mario
 		sub a2, a2, t4			# xmario - xfantasma
@@ -423,11 +430,11 @@ CHECK_DIST:	lh a2, 0(a3)			# carrega a direcao oposta do fantasma
 		lh a7, 4(a0)			# carrega se o fantasma esta assustado ou naO
 		beqz t3, LOAD_G			# caso ainda nao haja melhor valor, salva este
 		bne a7, zero, NORMAL_CHECK
-		blt a2, t3, TURN_LOOP		# ve se a distancia entre o mario e o fantasma eh menor que a salva, se for, nao muda o valor salvo (rotina do medo)
-		j LOAD_G
+		bge a2, t3, LOAD_G		# ve se a distancia entre o mario e o fantasma eh menor que a salva, se for, nao muda o valor salvo (rotina do medo)
+		j TURN_LOOP
 		
-NORMAL_CHECK:	bgt a2, t3, TURN_LOOP		# ve se a distancia entre o mario e o fantasma eh maior que a salva, se for, nao muda o valor salvo (rotina normal)
-		j LOAD_G
+NORMAL_CHECK:	blt a2, t3, LOAD_G		# ve se a distancia entre o mario e o fantasma eh maior que a salva, se for, nao muda o valor salvo (rotina normal)
+		j TURN_LOOP
 		
 LOAD_G:		mv t3, a2			# salva na distancia 
 		mv a6, a5			# salva a direcao

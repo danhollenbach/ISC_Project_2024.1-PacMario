@@ -3,6 +3,9 @@
 
 STAGE:		.half 3				# nivel (0 = mapa 1, 1 = mapa 2, 2 = victory, 3 = menu, 4 = game over/victory)
 DEATH_ERASE:	.half 0				# checa se trata-se do apagamento apos a colisao
+TP1:		.half 128, 55			# coordenadas do teleporte 1
+TP2:		.half 128, 184			# coordenadas do teleporte 2
+TP_COUNT:	.half 0				# conta se o boneco se teleportou ou nao
 
 ############# Player
 
@@ -106,7 +109,10 @@ WAIT:		ecall				# freeza a mensagem na tela (1 s tela do menu e 2s 'press m')
 PRESS_RES:	li t1, 0
 		sh t1, 0(t0)			# reseta o contador
 
-SETUP:		li s10, 0			# contador para a animacao do sprite
+SETUP:		la a0, TP_COUNT
+		li a1, 0
+		sh a1, 0(a0)			# zera o contador de tp
+		li s10, 0			# contador para a animacao do sprite
 		li s7, 0			# offset inicial para o sprite dos fantasmas 
 		la a0, black
 		li a1, 0
@@ -130,8 +136,21 @@ SETUP:		li s10, 0			# contador para a animacao do sprite
 		lh t0, 0(t0)			# carrega qual o nivel que o player esta
 		beqz t0, MAPA1
 		li t2, 2
-		beq t0, t2, VICTORY		# caso o jogador passe da segunda fase (STAGE = 1), ele ganha
-		la a0, mapa_2			# carrega o endereco do mapa2 em a0
+		bne t0, t2, UPDATE_TP		# caso o jogador passe da segunda fase (STAGE = 1), ele ganha
+		j VICTORY
+		
+UPDATE_TP:	la a0, TP1
+		li t0, 63
+		li t1, 217
+		sh t0, 0(a0)			# muda a coordenada do primeiro tp (x)
+		sh t1, 2(a0)			# muda a coordenada do primeiro tp (y)
+		la a0, TP2
+		li t0, 200
+		li t1, 17
+		sh t0, 0(a0)			# muda a coordenada do segundo tp (x)
+		sh t1, 2(a0)			# muda a coordenada do segundo tp (y)
+		
+PLAY_C:		la a0, mapa_2			# carrega o endereco do mapa2 em a0
 		mv s2, a0
 		la s3, moedas_2			# carrega o endereco do mapa de moedas 2
 		la s4, mapa_2c
@@ -190,8 +209,9 @@ LIFE_CONFIG:	la a0, mario_down
 		
 		la a0, LIFECOUNT		# checa a quantidade de vidas do player para imprimir no bitmap ou levar ao game over
 		lh t0, 0(a0)
-		beqz t0, GAME_OVER
-		li a1, 280
+		bne t0, zero, R_LIFE
+		j GAME_OVER
+R_LIFE:		li a1, 280
 		li a2, 136
 		li a6, 0
 		li a7, 0
@@ -221,7 +241,7 @@ STANDBY:	li t0,0xFF200604		# carrega em t0 o endereco de troca de frame
 		li a0 2000
 		ecall				# freeza a tela inicial por 2 s antes do jogo comecar		
 		
-GAME_LOOP: 	la a0, POINTS
+GAME_LOOP:	la a0, POINTS
 		lh a0, 0(a0)			# carrega o numero de pontos em a0
 		li t0, 240			# numero total de pontos por fase
 		beq a0, t0, NEXT_LEVEL		# caso o player alcance o fim do mapa, muda de fase
@@ -265,7 +285,7 @@ POWER2:		la t1, TIMER2
 POWER_DOWN:	la a0, MARIO_STATUS
 		lh t0, 4(a0)			# carrega se o mario esta poderoso ou nao
 		bne t0, zero, STEP_2		# caso esteja normal, ignora essa rotina
-		# to trabalhando aqui
+		
 		la t0, BATIDA
     	la t1, POWER_UP
     	sw t1, (t0)
@@ -277,8 +297,17 @@ POWER_DOWN:	la a0, MARIO_STATUS
 		li s9, 0			# zera o contador
 		
 
-STEP_2:		call MOVE
-		la a0, STAGE
+STEP_2:		la t0, TP_COUNT
+		lh t1, 0(t0)			# carrega se o boneco se teleportou
+		beqz t1, MOVE_C			
+		li t1, 0
+		sh t1, 0(t0)			# atualiza o contador
+		j STEP_3
+		
+MOVE_C:		call MOVE
+		call TELEPORT
+
+STEP_3:		la a0, STAGE
 		lh a0, 0(a0)			# carrega qual mapa esta sendo renderizado
 		beqz a0, LEVEL_1
 		la s2, mapa_2			# mapa 2
@@ -305,7 +334,8 @@ MOVEMENT:	############# coloca os fantasmas presos ou nao
 		############ movimento dos fantasmas (pegar estado como argumento para menor velocidade no medo e checar se esta preso)
 		mv t0, s2
 
-ERASE:		mv a0, t0			# mapa de base para o apagamento
+ERASE:		
+		mv a0, t0			# mapa de base para o apagamento
 		la t0, OLD_CHAR_POS		# carrega a posicao antiga do mario
 		lh a1, 0(t0)			# x
 		lh a2, 2(t0)			# y
@@ -413,8 +443,9 @@ COL_SKIP:	la t0, CHAR_POS
 		mv a5, s0			# carrega o frame renderizado
 		la t0, HIT_COUNT		# carrega se o mario foi atingido ou nao
 		lh t0, 0(t0)
-		bne t0, zero, PRINT_D		# caso o mario tenha sido atingido, pula o load de sprites
-		la t1, MARIO_STATUS
+		beqz t0, PRINT_N		# caso o mario tenha sido atingido, pula o load de sprites
+		j PRINT_D
+PRINT_N:	la t1, MARIO_STATUS
 		lh t0, 4(t1)			# carrega se o mario esta energizado ou nao
 		lh t1, 2(t1)			# carrega a direcao do personagem
 		mv a6, s7
@@ -459,8 +490,9 @@ PRINT:		li a7, 0
 		
 HIT_RESPAWN:	la t0, HIT_COUNT
 		lh t1, 0(t0)			# carrega se o mario foi atingido
-		beqz, t1, IGNORE_HIT		# se nao foi, carrega a rotina normal
-		la t0, CHAR_POS
+		bne t1, zero, HIT_DEAL		# se nao foi, carrega a rotina normal
+		j IGNORE_HIT
+HIT_DEAL:	la t0, CHAR_POS
 		lh t1, 0(t0)			# x do mario
 		lh t2, 2(t0)			# y do mario
 		la t0, OLD_CHAR_POS
@@ -637,5 +669,6 @@ EXIT:		li a7, 10
 	.include "In-game mechanics/render.s"
 	.include "In-game mechanics/move.s"
 	.include "In-game mechanics/colision.s"
+	.include "In-game mechanics/teleport.s"
 	.include "Sounds/musicPlayer.s"
 	.include "Macros/SYSTEMv21.s"	
