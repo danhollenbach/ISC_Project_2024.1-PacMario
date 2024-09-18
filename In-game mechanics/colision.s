@@ -1,5 +1,5 @@
 .text
-
+################ Checagem da colisao com moedas ou com o poder
 COIN_COUNT:	li t0, 8		# dimensoes do tile do mapa de colisao para comparacao
 		li t1, 40		# largura do mapa de colisao 
 		div a1, a1, t0		
@@ -33,7 +33,8 @@ PILL:		la t0, MARIO_STATUS	# vai pra rotina do mario poderoso
 		addi t2, t2, -7		# agora tira a pilula do mapa
 		sb t2, 0(a0)
 		j CLOSE
-		
+
+################ Checagem da colisao com o mapa		
 COLISION_CHECK: addi a0, a0, 8		# pula as informacoes do mapa
 		mv s5, a0		# guarda o endereco do mapa
 		li t2, 320
@@ -59,6 +60,7 @@ SKIP_MOVE:	la t2, COL
 CLOSE:		ret			# retorna
 
 
+################ Checagem da informacao do mapa de moedas para renderizacao do fantasma correspondente (passando por um slot de moeda, ele nao a apaga, mas imprime de volta)
 CMAP_CHECK:	li t1, 8
 		li t2, 40
 		div t3, a1, t1
@@ -76,7 +78,7 @@ CMAP_CHECK:	li t1, 8
 CRENDER:	mv a0, s3			# carrega no endereco de erase o mapa de moedas, caso o fantasma passe por um espaco que ainda tem moedas
 		ret
 
-
+################ Checa a colisao com os fantasmas
 G_HITCHECK:	li t0, 225			# parametro para comparacao
 		sub a0, a0, a2			# x do fantasma - x do mario
 		mul a0, a0, a0			# diferenca ao quadrado = tirar o negativo que possa ocorrer na subtracao

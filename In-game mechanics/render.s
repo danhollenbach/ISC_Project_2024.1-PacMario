@@ -59,7 +59,8 @@ NORMAL_PRINT:	mv t3,zero			# zera t3 (contador de coluna)
 		bgt a4,t2,PRINT_LINHA		# se altura > contador de linha, continue imprimindo
 		
 RET:		ret				# retorna
-		
+	
+################ Alocar o sprite que corresponda a direcao que o fantasma esta olhando
 GHOST_DIR:	la t0, MARIO_STATUS
 		lh t0, 4(t0)			# carrega se o mario esta poderoso ou nao
 		beqz t0, FRIGHT

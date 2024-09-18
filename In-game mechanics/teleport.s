@@ -1,5 +1,5 @@
 .text
-
+################ Teleporte do boneco entre os canos do mapa
 TELEPORT:	la s5, MARIO_HITBOX1		# hitbox1
 		la s6, MARIO_HITBOX2		# hitbox2
 		la t1, TP1			# carrega a label com as infos de teleporte

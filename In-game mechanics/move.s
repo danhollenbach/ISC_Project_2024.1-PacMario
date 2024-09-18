@@ -1,3 +1,4 @@
+################ Checar se alguma tecla foi apertada e mudar a direcao do boneco ou ativa o cheat
 KEY2:		li a5, 1
 		li t1,0xFF200000		# carrega o endereco de controle do KDMMIO
 		lw t0,0(t1)			# Le bit de Controle Teclado
@@ -67,7 +68,8 @@ FINISH:		la t0, PRESSED
 		li t3, 1
 		sh t3, 0(t0)			# atualiza o valor de PRESSED para sair do loop
 		ret		
-		
+
+################ Movimentacao do boneco / alteracao das hitbox e colisao com parede
 MOVE:		la t0, MARIO_STATUS		# checa a condicao de movimento e anda 4 pixels para a direcao desejada
 		la s5, MARIO_HITBOX1
 		la s6, MARIO_HITBOX2
@@ -218,21 +220,20 @@ BREAK:		li t3, 0
 		sh t2, 2(t0)			# atualiza o centro do mario (y) como sendo (y do boneco + 4)
 		ret
 
+################ checar se o fantasma esta preso e mudar sua condicao se for o caso
 PRISON:		lh t0, 0(a0)			# ve se o fantasma esta aprisionado
 		beqz t0, RELEASE		# caso nao esteja aprisionado, vai para o fim da rotina
 		lh t0, 0(a4)
 		li t1, 80
 		bge t0, t1, FREE		# caso ja tenham se passado 3 segundos apos a prisao do fantasma, o libera
+		lh t0, 0(a5)
+		sh t0, 0(a7)
+		lh t0, 2(a5)
+		sh t0, 2(a7)			# atualiza as posicoes para o erase do fantasma
 		sh a1, 0(a5)			# guarda o x de aprisionamento na posicao
 		sh a2, 2(a5)			# guarda o y de aprisionamento na posicao
-		beqz t0, UPDATE_L		# caso tenha acabado de ser preso, nao carrega a antiga posicao ainda, para fazer o erase do fantasma do mapa
+		lh t0, 0(a4)			# carrega o timer de aprisionamento
 		addi t0, t0, 1
-		sh t0, 0(a4)			# atualiza o contador
-		sh a1, 0(a7)
-		sh a2, 2(a7)
-		j RELEASE
-
-UPDATE_L:	addi t0, t0, 1
 		sh t0, 0(a4)			# atualiza o contador
 		j RELEASE
 		
@@ -249,7 +250,7 @@ FREE:		li t1, 2
 
 RELEASE:	ret
 
-
+################ Movimentacao dos fantasmas
 G_MOVE:		lh a2, 0(a1)			# carrega se os fantasmas estao presos
 		li t1, 1
 		beq a2, t1, STILL		# caso fantasmas estejam presos, pula o movimento
@@ -416,7 +417,7 @@ UP_CHECK:	addi t2, t2, -8			# checa para ver o movimento para cima
 		li a5, 2			# valor de direcao no status dos personagens (cima = 2)
 
 CHECK_DIST:	lh a2, 0(a3)			# carrega a direcao oposta do fantasma
-		bne a5, a2, PIT		# se a direcao for a oposta do fantasma, ignora ela
+		bne a5, a2, PIT			# se a direcao for a oposta do fantasma, ignora ela
 		j TURN_LOOP
 		
 PIT:		la a7, CHAR_POS			# endereco da posicao do mario	
@@ -430,6 +431,20 @@ PIT:		la a7, CHAR_POS			# endereco da posicao do mario
 		lh a7, 4(a0)			# carrega se o fantasma esta assustado ou naO
 		beqz t3, LOAD_G			# caso ainda nao haja melhor valor, salva este
 		bne a7, zero, NORMAL_CHECK
+		la a7, TURN_IGNORE		# carrega o valor de direcao aleatoria
+		lh t2, 0(a7)	
+		li t5, 6
+		bge t2, t5, RANDOM
+		j MARKED
+		
+RANDOM:		li t2, 0
+		sh t2, 0(a7)			# zera o contador de aleatorio
+		mv t3, a2			# salva na distancia 
+		mv a6, a5			# salva a direcao
+		j END_MOVE
+		
+MARKED:		addi t2, t2, 1
+		sh t2, 0(a7)			# aumenta um no contador de direcao aleatoria
 		bge a2, t3, LOAD_G		# ve se a distancia entre o mario e o fantasma eh menor que a salva, se for, nao muda o valor salvo (rotina do medo)
 		j TURN_LOOP
 		

@@ -6,6 +6,7 @@ DEATH_ERASE:	.half 0				# checa se trata-se do apagamento apos a colisao
 TP1:		.half 128, 55			# coordenadas do teleporte 1
 TP2:		.half 128, 184			# coordenadas do teleporte 2
 TP_COUNT:	.half 0				# conta se o boneco se teleportou ou nao
+TURN_IGNORE:	.half 0				# contador para virar o fantasma para uma direcao aleatoria 
 
 ############# Player
 
@@ -73,7 +74,7 @@ LIFECOUNT:	.half 3
 		.include "Macros/macros.s"
 		.include "Macros/MACROSv21.s"
 .text
-
+################ Menu e loop do menu
 MENU:		la t0, D_BG_MUSIC
 		la t1, M_BG
 		sw t1, 0(t0)
@@ -109,6 +110,7 @@ WAIT:		ecall				# freeza a mensagem na tela (1 s tela do menu e 2s 'press m')
 PRESS_RES:	li t1, 0
 		sh t1, 0(t0)			# reseta o contador
 
+################ Configuracoes iniciais / reset dos bonecos para inicio do jogo
 SETUP:		la a0, TP_COUNT
 		li a1, 0
 		sh a1, 0(a0)			# zera o contador de tp
@@ -240,7 +242,8 @@ STANDBY:	li t0,0xFF200604		# carrega em t0 o endereco de troca de frame
 		li a7 32
 		li a0 2000
 		ecall				# freeza a tela inicial por 2 s antes do jogo comecar		
-		
+
+################ Loop principal do jogo
 GAME_LOOP:	la a0, POINTS
 		lh a0, 0(a0)			# carrega o numero de pontos em a0
 		li t0, 240			# numero total de pontos por fase
@@ -281,7 +284,7 @@ STAGE_1:	la a0, moedas_1c
 POWER2:		la t1, TIMER2
 		lh t1, 0(t1)			# chama o contador do poder do mario na segunda fase
 		
-		
+################ Checagem da condicao de poder		
 POWER_DOWN:	la a0, MARIO_STATUS
 		lh t0, 4(a0)			# carrega se o mario esta poderoso ou nao
 		bne t0, zero, STEP_2		# caso esteja normal, ignora essa rotina
@@ -303,7 +306,8 @@ STEP_2:		la t0, TP_COUNT
 		li t1, 0
 		sh t1, 0(t0)			# atualiza o contador
 		j STEP_3
-		
+
+################ Movimentacao e teleporte entre os canos		
 MOVE_C:		call MOVE
 		call TELEPORT
 
@@ -334,8 +338,8 @@ MOVEMENT:	############# coloca os fantasmas presos ou nao
 		############ movimento dos fantasmas (pegar estado como argumento para menor velocidade no medo e checar se esta preso)
 		mv t0, s2
 
-ERASE:		
-		mv a0, t0			# mapa de base para o apagamento
+################ Apagamento do rastro dos bonecos
+ERASE:		mv a0, t0			# mapa de base para o apagamento
 		la t0, OLD_CHAR_POS		# carrega a posicao antiga do mario
 		lh a1, 0(t0)			# x
 		lh a2, 2(t0)			# y
@@ -422,7 +426,7 @@ CONTINUE:	mv s7, a6
 		mv a6, s7
 		render(a0, a1, a2, 16, 16, a5, a6, a7)
 		
-		############			# checa colisao com os fantasmas e perda de vida/ morte do fantasma
+		############# checa colisao com os fantasmas e perda de vida/ morte do fantasma
 		g_colision(RED_POS, CHAR_POS, RED_TRAPED, 128, 128)
 		la t0, HIT_COUNT
 		lh t0, 0(t0)	
@@ -437,6 +441,7 @@ CONTINUE:	mv s7, a6
 		bne t0, zero, COL_SKIP
 		g_colision(BLUE_POS, CHAR_POS, BLUE_TRAPED, 128, 96)
 		
+################ Renderizacao do mario de acordo com a condicao dele
 COL_SKIP:	la t0, CHAR_POS
 		lh a1, 0(t0)			# x
 		lh a2, 2(t0)			# y
@@ -479,7 +484,7 @@ CIMA:		beqz t0, CIMA_P
 CIMA_P:		la a0, mario_pup		# carrega o sprite do mario energizado pra cima
 		j PRINT
 
-PRINT_D:	li a6, 0
+PRINT_D:	li a6, 0			# ignora o offset caso imprimindo o sprite do mario morto
 
 PRINT:		li a7, 0
 		render(a0, a1, a2, 16, 16, a5, a6, a7)
@@ -487,7 +492,8 @@ PRINT:		li a7, 0
 		li t0,0xFF200604		# carrega em t0 o endereco de troca de frame
 		sw s0,0(t0)			# mostra o sprite pronto para o usuario
 		addi s10, s10, 1		# incrementa o contador da animacao
-		
+
+################ Checagem de colisao com os fantasmas para tratar a rotina adequada		
 HIT_RESPAWN:	la t0, HIT_COUNT
 		lh t1, 0(t0)			# carrega se o mario foi atingido
 		bne t1, zero, HIT_DEAL		# se nao foi, carrega a rotina normal
@@ -510,6 +516,7 @@ HIT_DEAL:	la t0, CHAR_POS
 		# reseta os fantasmas para o aprisionamento
 		li a6, 1			# contador para o loop de morte
 
+################ Loop de morte para reset do jogo ou continuacao do jogo normalmente
 DEATH_LOOP:	li t1, 60
 		addi a6, a6, 1
 		blt a6, t1, IGNORE_HIT
@@ -533,6 +540,7 @@ IGNORE_HIT:	li a7 32
 		bne t1, zero, DEATH_LOOP	# caso o mario tenha sido atingido, volta para o loop de morte
 		j GAME_LOOP
 
+################ Mudanca para a proxima fase
 NEXT_LEVEL:	
 		# o Dan ta trabalhando aqui 
 		la t0, BATIDA
@@ -542,6 +550,7 @@ NEXT_LEVEL:
 		la a0, MARIO_STATUS
 		li t0, 1
 		sh t0, 4(a0)			# zera o contador de poder do mario
+		li s9, 0			# zera o contador de poder
 		la a0, POINTS
 		li t0, 0
 		sh t0, 0(a0)			# zera a quantia de pontos
@@ -550,7 +559,8 @@ NEXT_LEVEL:
 		addi t2, t2, 1			# soma 1 ao nivel atual, logo, vai pra o proximo nivel
 		sh t2, 0(a0)
 		j SETUP				# volta para o setup
-						
+
+################ Derrota						
 GAME_OVER:	la a0, game_over1
 		li a1, 0
 		li a2, 0
@@ -566,7 +576,7 @@ GAME_OVER:	la a0, game_over1
 		sh t0, 0(a0)			# guarda 4 (tela de game over) no STAGE
 		j END_LOOP			# prossegue para checar a tela de sair do jogo
 		
-		
+################ Vitoria		
 VICTORY:	la a0, win1
 		li a1, 0
 		li a2, 0
